@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+/* Include the following bitlog header file when using bitlog. */
+#include "../bitlog/bitlog.h"
 
 /* Calculate the number of iterations required for number to satisfy the
  * Collatz conjecture.  Returns either the number of iterations required
@@ -30,20 +32,23 @@ int collatz_conjecture(int number)
 }
 
 
+/* Calculate the number of interations required for a (small) random
+ * number to converge to 1 using the Collatz algorithm. */
 int main(int argc, char **argv)
 {
     int number;
     int iterations;
 
-    printf("Entering main\n");
+    /* Add the following call to initialize bitlog when using bitlog. */
+    bitlog_init(0);
 
     srandom(time(0));
     number = (int) (random() % 2048);
-
     iterations = collatz_conjecture(number);
-
     printf("%d requires %d iterations\n", number, iterations);
 
-    printf("Exiting main\n");
+    /* Add the following log buffer flush when using bitlog. */
+    bitlog_flush();
+
     return 0;
 }

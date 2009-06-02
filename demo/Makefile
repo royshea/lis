@@ -1,10 +1,11 @@
 # Author: Roy Shea (royshea@gmail.com)
 # Date:  6/1/09
 
-SOURCES = demo.c
-CFLAGS = -g -Wall -pedantic
-
 CC = gcc
+CPP = cpp
+CFLAGS = -g -Wall
+
+SOURCES = demo.c
 OBJECTS = $(SOURCES:.c=.o)
 
 all: demo
@@ -20,3 +21,7 @@ clean:
 
 spotless: clean
 	rm -f demo
+
+LISGOAL = demo_lis
+include Makefile.lis
+

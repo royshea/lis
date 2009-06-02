@@ -1,0 +1,38 @@
+# Author: Roy Shea (royshea@gmail.com)
+# Date:  6/1/09
+
+LIS = ../lis/x86-lis
+INCLUDES += -I ../bitlog
+LIBS += -L ../bitlog -l bitlog
+
+ifndef $(LISFILE)
+LISFILE = default.lis
+endif
+
+SOURCES += sendlog.c
+PREPROCS = $(SOURCES:.c=.i)
+
+.PRECIOUS: %.lis.c
+
+%.i: %.c
+	$(CPP) $< -o $@
+
+$(LISGOAL).i: $(PREPROCS)
+	cat $? > $@
+
+$(LISGOAL).c: $(LISGOAL).i
+	@echo "Be sure to inculed bitlog.h and link in the bitlog library"
+	$(LIS) --lis $(LISFILE) --rlis $(LISFILE).rlis --out tmp.lisi $<
+	sed -e '/extern void HOLDER_FUNC(char const   \*msg ) ;/d' < tmp.lisi > tmp.include
+	sed -e 's/HOLDER_FUNC("\(.*\) \(.*\)");/bitlog_write_data(\1, \2);/' < tmp.include > tmp.bitlog
+	cp tmp.bitlog $@
+	rm tmp.bitlog tmp.include tmp.lisi
+
+$(LISGOAL).o: $(LISGOAL).c
+	$(CC) -c $(CFLAGS) $(INCLUDES) $< -o $@
+
+lis: $(LISGOAL).o
+	$(CC) $(CFLAGS) $? $(LIBS) -o $(LISGOAL)
+
+lis_clean: spotless
+	rm -f $(LISFILE).rlis $(LISGOAL).o $(LISGOAL).c *.i demo_lis
