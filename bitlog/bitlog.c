@@ -66,7 +66,7 @@ static uint8_t current_sequence_number;
 
 
 /* Prepare the next bitlog buffer. */
-static prep_buffer(uint8_t sequence_number)
+static void prep_buffer(uint8_t sequence_number)
 {
     uint8_t i;
     Bitlog *log;
@@ -151,7 +151,6 @@ void bitlog_write_data(uint32_t bit_data, uint8_t bit_width)
         /* Flush buffer if needed. */
         if (log->num_valid_bits == 8 * BIT_DATA_BUFFER)
         {
-            uint8_t i;
             bitlog_flush();
             ++current_sequence_number;
             prep_buffer(current_sequence_number);

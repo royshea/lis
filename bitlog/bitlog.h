@@ -61,7 +61,7 @@ typedef struct
 } Bitlog;
 
 
-void bitlog_init(log_identifier);
+void bitlog_init(uint16_t log_identifier);
 void bitlog_flush(void);
 void bitlog_write_data(uint32_t bit_data, uint8_t bit_width);
 
