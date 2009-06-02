@@ -49,7 +49,7 @@ export PROJ_lis
 # Default project to bulid
 ####
 ifndef SUBPROJS
-	export SUBPROJS = extractcalls lis
+	export SUBPROJS = lis
 endif
 
 
