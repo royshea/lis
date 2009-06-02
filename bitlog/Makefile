@@ -2,7 +2,7 @@
 # Date:  6/1/09
 
 SOURCES = bitlog.c
-CFLAGS = -g -c -Wall -pedantic -DUSE_SYSTEM_INCLUDES
+CFLAGS = -g -Wall -pedantic -DUSE_SYSTEM_INCLUDES
 
 # Target specific build rules.  These are selected based on common uses
 # within TinyOS that would use:
@@ -48,7 +48,7 @@ $(LIB): $(OBJECTS)
 	$(AR) rcs $(LIB) $(OBJECTS)
 
 .c.o:
-	$(CC) $(TARGETFLAGS) $(CFLAGS) -Os $< -o $@
+	$(CC) $(TARGETFLAGS) $(CFLAGS) -c -Os $< -o $@
 
 
 ####
