@@ -2,7 +2,7 @@
 # Date:  6/1/09
 
 SOURCES = bitlog.c
-CFLAGS = -g -Wall -pedantic -DUSE_SYSTEM_INCLUDES
+CFLAGS = -g -Wall -pedantic 
 
 # Target specific build rules.  These are selected based on common uses
 # within TinyOS that would use:
@@ -13,12 +13,14 @@ ifeq ($(MAKECMDGOALS),avr)
 CC = avr-gcc
 AR = avr-ar
 LIB = libbitlog-avr.a
+CFLAGS += -DNO_SYSTEM_INCLUDES
 TARGETFLAGS = -mmcu=atmega128
 
 else ifeq ($(MAKECMDGOALS),msp430)
 CC = msp430-gcc
 AR = msp430-ar
 LIB = libbitlog-msp430.a
+CFLAGS += -DNO_SYSTEM_INCLUDES
 TARGETFLAGS = -specs=/usr/lib/ncc/tdspecs -mdisable-hwmul -mmcu=msp430x1611
 
 else ifneq ($(MAKECMDGOALS),clean)

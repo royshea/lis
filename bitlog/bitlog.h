@@ -28,9 +28,9 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-#ifdef USE_SYSTEM_INCLUDES
+#ifndef NO_SYSTEM_INCLUDES
 #include <stdint.h>
-#endif /* USE_SYSTEM_INCLUDES */
+#endif /* NO_SYSTEM_INCLUDES */
 
 
 /* The default BIT_DATA_BUFFER length is set based on limitations of the

@@ -35,11 +35,11 @@
 /*
  * External function called by bitlog_flush to pass a bitlog log of
  * length len bytes (including the bitlog header) back to a user.  The
- * sendLog function should not maintain any pointer to data after
+ * send_log function should not maintain any pointer to data after
  * returning, and so it should either create a deep copy of the buffer
  * or otherwise handle the data before returning.
  */
-extern uint8_t sendLog(void *data, uint8_t len);
+extern uint8_t send_log(void *data, uint8_t len);
 
 
 /* Double buffer for logging. */
@@ -94,14 +94,14 @@ void bitlog_init(uint16_t log_identifier)
  *
  * TODO: Need to protect this (along the lines of the log_status variable)
  * in cases where bitlog_flush is being called from external user code.
- * Else the sendLog function could generate calls back into bitlog, and
+ * Else the send_log function could generate calls back into bitlog, and
  * that would be bad.
  */
 void bitlog_flush(void)
 {
     Bitlog *log;
     log = &bitlog_buffer[current_sequence_number % 2];
-    sendLog(log, sizeof(Bitlog));
+    send_log(log, sizeof(Bitlog));
 }
 
 
