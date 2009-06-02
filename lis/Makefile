@@ -1,18 +1,32 @@
+# Author: Roy Shea (royshea@gmail.com)
+# Date:  6/1/09
+
 # Ensure the correct enviornment exists
 ifndef CILPATH
 $(error Must set envioronment CILPATH to point to the root of your CIL installation)
 endif
 
+
+# Target specific build rules.  These are selected based on common uses
+# within TinyOS that would use:
+# - avr for mica2 or micaz
+# - msp430 for telsob
+# - not specified for the default x86_NATIVE target
 ifeq ($(MAKECMDGOALS),avr)
 TARGET = avr
+export INCDIRS = $(CILPATH)/obj/$(TARGET)_EMBEDDED
+
 else ifeq ($(MAKECMDGOALS),msp430)
 TARGET = msp430
+export INCDIRS = $(CILPATH)/obj/$(TARGET)_EMBEDDED
+
 else ifeq ($(MAKECMDGOALS),clean)
 TARGET = none
-else ifeq ($(MAKECMDGOALS),install)
-TARGET = none
+
 else
-$(error Must specify as make target one of "avr" or "msp430")
+TARGET = x86
+export INCDIRS = $(CILPATH)/obj/$(TARGET)_LINUX
+
 endif
 
 ####
@@ -20,18 +34,10 @@ endif
 ####
 OCAMLMAKEFILE = OCamlMakefile
 export LIBS = unix str cil
-export INCDIRS = $(CILPATH)/obj/$(TARGET)_EMBEDDED
 
 ####
-# Add projects here
+# LIS specific projects (additional projects can be added)
 ####
-
-define PROJ_extractcalls
-SOURCES = extractcalls.ml
-RESULT = $(TARGET)-extractcalls
-endef
-export PROJ_extractcalls
-
 define PROJ_lis
 SOURCES = lowlog.ml lis.ml
 RESULT = $(TARGET)-lis
@@ -62,10 +68,8 @@ msp430: bc
 avr: bc
 	@echo Done
 
-install:
-	cp *-extractcalls ../analysis/
-	cp *-lis ../instrumentation/
-
+spotless: clean
+	rm -f *-lis
 
 # Catch-all target will be applied to all subprojects automatically
 %:
