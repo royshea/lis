@@ -66,7 +66,7 @@ static uint8_t current_sequence_number;
 
 
 /* Prepare the next bitlog buffer. */
-static void prep_buffer(uint8_t sequence_number)
+static Bitlog* prep_buffer(uint8_t sequence_number)
 {
     uint8_t i;
     Bitlog *log;
@@ -77,6 +77,8 @@ static void prep_buffer(uint8_t sequence_number)
     log->num_valid_bits = 0;
     for (i=0; i<BIT_DATA_BUFFER; i++)
         log->bit_data[i] = 0;
+
+    return log;
 }
 
 
@@ -153,7 +155,7 @@ void bitlog_write_data(uint32_t bit_data, uint8_t bit_width)
         {
             bitlog_flush();
             ++current_sequence_number;
-            prep_buffer(current_sequence_number);
+            log = prep_buffer(current_sequence_number);
         }
 
         /* Find index into bit_data */
