@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-import packet
-
 
 class DataMissing(Exception):
     def __init__(self, value):

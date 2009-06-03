@@ -128,7 +128,7 @@ class BitlogPacket (Packet):
                     "Invalid 8-bit hex value: %s\n" % byte
             bits = "".join([str((byte >> y) & 1) for y in range(8-1, -1, -1)])
             bit_str += bits
-        return bit_str
+        return bit_str[:self.num_bits]
 
 
     def __str__(self):
