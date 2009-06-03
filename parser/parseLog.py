@@ -107,6 +107,13 @@ class RoiParser:
                     out_string += self.INDENT * len(call_stack)
                     out_string += "%d %d: " % (time, bit_offset)
                     out_string += "Calling %s\n" % token.target
+            elif token.type == rlisTokens.RlisEntry.CONDITIONAL:
+                # Conditionals have no impact on the call stack, but may
+                # as well be listed.
+                out_string += self.INDENT * len(call_stack)
+                out_string += "%d %d: " % (time, bit_offset)
+                out_string += "Branch ID: %d (of %d)\n" % (
+                        token.id, token.range)
             else:
                 out_string += self.INDENT * len(call_stack)
                 out_string += "%d: " % time
