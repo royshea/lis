@@ -71,18 +71,18 @@ class RoiParser:
                     out_string += "-- GLOBAL --> %s\n" % token.target
                 else:
                     out_string += self.INDENT * len(call_stack)
-                    out_string += "%d %d: " % (time, bit_offset)
+                    out_string += "%4.6f %3d: " % (time, bit_offset)
                     out_string += "Calling %s\n" % token.target
             elif token.type == rlisTokens.RlisEntry.CONDITIONAL:
                 # Conditionals have no impact on the call stack, but may
                 # as well be listed.
                 out_string += self.INDENT * len(call_stack)
-                out_string += "%d %d: " % (time, bit_offset)
+                out_string += "%4.6f %3d: " % (time, bit_offset)
                 out_string += "Branch ID: %d (of %d)\n" % (
                         token.id, token.range)
             else:
                 out_string += self.INDENT * len(call_stack)
-                out_string += "%d %d: " % (time, bit_offset)
+                out_string += "%4.6f %3d: " % (time, bit_offset)
                 out_string += "Non-ROI token encountered.\n"
 
 
@@ -101,22 +101,22 @@ class RoiParser:
                 if self.token_table.has_point_footer(token.target):
                     call_stack.append(token.target)
                     out_string += self.INDENT * (len(call_stack) - 1)
-                    out_string += "%d %d: " % (time, bit_offset)
+                    out_string += "%4.6f %3d: " % (time, bit_offset)
                     out_string += "--> %s\n" % token.target
                 else:
                     out_string += self.INDENT * len(call_stack)
-                    out_string += "%d %d: " % (time, bit_offset)
+                    out_string += "%4.6f %3d: " % (time, bit_offset)
                     out_string += "Calling %s\n" % token.target
             elif token.type == rlisTokens.RlisEntry.CONDITIONAL:
                 # Conditionals have no impact on the call stack, but may
                 # as well be listed.
                 out_string += self.INDENT * len(call_stack)
-                out_string += "%d %d: " % (time, bit_offset)
+                out_string += "%4.6f %3d: " % (time, bit_offset)
                 out_string += "Branch ID: %d (of %d)\n" % (
                         token.id, token.range)
             else:
                 out_string += self.INDENT * len(call_stack)
-                out_string += "%d: " % time
+                out_string += "%4.6f: " % time
                 out_string += "Non-ROI token encountered.\n"
 
         else:
@@ -126,7 +126,7 @@ class RoiParser:
         if token.type == rlisTokens.RlisEntry.WATCH:
             data = stream.read_bytes(token.var_width)
             out_string += self.INDENT * len(call_stack)
-            out_string += "%d %d: " % (time, bit_offset)
+            out_string += "%4.6f %3d: " % (time, bit_offset)
             out_string += "Watch point for %s with value: %d\n" % (
                     token.watch_var, (int(data, 2)))
 
