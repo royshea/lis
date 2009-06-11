@@ -154,6 +154,8 @@ class BitlogPacket (Packet):
 def read_packets(file, packet_class):
     """Read packets from file."""
 
+    import sys
+
     # Read in packets
     try:
         file = open(file)
