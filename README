@@ -96,7 +96,7 @@ Installation
 
 Installation has been automated using the following installation script:
 
-link:install.sh[LIS Installation Script]
+link:install/install.sh[LIS Installation Script]
 
 The script requires that OCaml already be installed on the system.  The
 script automates:
@@ -115,7 +115,7 @@ The installation script takes as input a base directory where you want
 CIL an LIS to be installed.  For example:
 
 ----
-wget http://projects.nesl.ucla.edu/~roy/lis/install.sh
+wget http://projects.nesl.ucla.edu/~roy/lis/install/install.sh
 sh install.sh $HOME/local
 ----
 
@@ -168,62 +168,168 @@ from which the logged token should be taken and can be one of +global+,
 The five statement types and their syntax are:
 
 Header
-^^^^^^
+++++++
 
-Syntax::
-  +header+ _placement_ _scope_
-Description::
-  Log a token taken from _scope_ when _placement_ is entered.
++header+ _placement_ _scope_
 
-Syntax::
-  +footer+ _placement_ _scope_
-Description::
-  Log a token taken from _scope_ when returning from _placement_.
+Log a token taken from _scope_ when _placement_ is entered.
 
-Syntax::
- +call+ _placement_ _scope_ _target_
-Description::
- Log a token taken from _scope_ when _placement_ calls into _target_.
+Footer
+++++++
 
-Syntax::
- +conditional+ _placement_ _scope_ _flag_ _var_
-Description::
- Log a token taken from _scope_ describing the branch taken by control
- flow statement of type _flag_ and guarded by an expression using the
- variable _var_ within _placement_.  The _flag_ is an ORed set of: 1
- +if-else+ statements, 2 +switch-case+ statements or 4 loop constructs.
- Thus, a flag value of 5 will log loop constructs and +if-else+
- statements, but not +switch-case+ statements.  If filtering on _var_ is
- not desired, the special +__NULL__+ token (two leading and trailing
- underscores) can be used.
++footer+ _placement_ _scope_
+  
+Log a token taken from _scope_ when returning from _placement_.
 
-Syntax::
- +watch+ _placement_ _scope_ _var_
-Description::
- Log a token taken from _scope_ followed by the value of _var_ each time
- that _var_ appears as an l-value in function _placement_.
+Call
+++++
+
++call+ _placement_ _scope_ _target_
+ 
+Log a token taken from _scope_ when _placement_ calls into _target_.
+
+Conditional
++++++++++++
+
++conditional+ _placement_ _scope_ _flag_ _var_
+ 
+Log a token taken from _scope_ describing the branch taken by control
+flow statement of type _flag_ and guarded by an expression using the
+variable _var_ within _placement_.  The _flag_ is an ORed set of: 1
++if-else+ statements, 2 +switch-case+ statements or 4 loop constructs.
+Thus, a flag value of 5 will log loop constructs and +if-else+
+statements, but not +switch-case+ statements.  If filtering on _var_ is
+not desired, the special +__NULL__+ token (two leading and trailing
+underscores) can be used.
+
+Watch
++++++
+
++watch+ _placement_ _scope_ _var_
+ 
+Log a token taken from _scope_ followed by the value of _var_ each time
+that _var_ appears as an l-value in function _placement_.
 
 
 
 Weaving LIS into a Program
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-(Name spaces)
+A LIS script drives instrumentation of a program using the +lis+
+program.  The +lis+ program takes as input a preprocessed program and
+the LIS script, and produces as output an instrumented program and
+optionally the resolved LIS (RLIS) scritp.  The instrumentation engine
+inserts calls to a holder function that can be replaced with the system
+specific logging function using +sed+.
 
-TODO
+----
+# Create test.c an test.lis files
+vim test.c test.lis 
+
+# Instrument program
+cpp test.c test.i
+lis --lis test.lis --rlis test.rlis --out test.lis.c
+
+# Replace holder function with libbitlog logging
+sed -e '/extern void HOLDER_FUNC(char const   \*msg ) ;/d' < test.lis.c > test.bitlog.tmp
+sed -e 's/HOLDER_FUNC("\(.*\) \(.*\)");/bitlog_write_data(\1, \2);/' < test.bitlog.tmp > test.bitlog.c
+
+# If the bitlog library was not already used in test.c, the user will
+# need to manually include the bitlog.h header file and initialize the
+# bitlog library
+----
+
+This instrumentation procedure is mostly automated through the
++Makefile.lis+ from the core LIS distribution in conjunction with a
+projects current build system.
+
+The output RLIS script is simply the original LIS script along with
+resolved token identifiers that will be logged at runtime.  Token
+identifiers are assigned by the instrumentation engine using the
+following strategy:
+
+Global Scoping::
+    Token value unique among all LIS tokens.
+
+Local Scoping::
+    Token value unique within the host function. Token value
+may appear in local name spaces for other functions.
+
+Point Scoping:: 
+    Single unique token value (all point tokens have the same value).
 
 
 Collecting runtime logs
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-TODO
+Collection of runtime logs is specific to the underlying log management
+software running on the system.  The LIS core includes a simple demo
+application that uses the included +sendlog.c+ to print log data out
+over standard out.  These can simply be redirected into a file for
+analysis:
+
+----
+./demo_lis 2> log.txt
+----
 
 Viewing logs
 ~~~~~~~~~~~~
 
-TODO
+The LIS parsers is able to parse a wide collection of logs.  It takes as
+input a log file and the associated RLIS script.  It uses this
+information to parse the log and produce a formatted output of runtime
+tokens encountered in from the trace.
+
+----
+parseLog.py -r test.rlis -f system -t log.txt
+----
+
 
 Integration into TinyOS
 -----------------------
 
-TODO
+LIS was specifically developed for collecting data from resource
+constrained wireless embedded systems.  We have provided full
+integration with the TinyOS 2.x operating system.  This support
+provides:
+
+* Build integration via a new "lis" option as an add-on to the mica2,
+micaZ and TelosB targets
+
+* Low overhead +bitlog+ runtime library providing basic logging support
+
+* Multi-hop log delivery using the
+http://www.tinyos.net/tinyos-2.1.0/doc/html/tep123.html[collection tree
+protocol]
+
+* Single-hop log delivery using the +AMSend+ interface
+
+The following installation script will download a clean version of
+TinyOS and integrate LIS support into it.
+
+link:install/tos_install.sh[TinyOS Installation Script]
+
+The installation script takes as input a base directory describing where
+you installed LIS and a base directory where you want to install TinyOS.
+
+----
+wget http://projects.nesl.ucla.edu/~roy/lis/install/tos_install.sh
+sh tos_install.sh $HOME/local/ $HOME/local
+----
+
+The TinyOS support can be accessed via one of two modes: directly via
+LIS scripts or using a higher level analysis that implements optimized
+call trace generation.
+
+----
+# Move into demo directory
+cd apps/MultihopLogTapRadioCountToLeds
+
+# Generate image instrumented based on the "health_no_crc.lis" script
+LIS_FILE=health_no_crc.lis make telosb lis
+
+# Generate image that gathers call traces through the LedsP and
+# CtpRoutingEngineP TinyOS components.
+LOG_PREFIX="LedsP CtpRoutingEngineP" make telosb lowlog
+----
+
