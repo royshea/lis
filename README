@@ -7,7 +7,7 @@ Overview
 [NOTE]
 =========
 
-This documentation is a work in progress (June 2008).  Two
+This documentation is a work in progress (June 2009).  Two
 tarballs are available while this document is under construction.  The
 first is a copy of LIS that has full TinyOS integration.  The second is
 a tarball of just the LIS core for use on desktop systems.
