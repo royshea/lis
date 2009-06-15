@@ -150,6 +150,16 @@ class BitlogPacket (Packet):
                 packet.msg_len == self.BITLOG_LENGTH
 
 
+    @classmethod
+    def get_bitlog_packets(self, packets):
+        """Return list of bitlog packets from packets."""
+
+        bitlog_packets = []
+        for p in packets:
+            if self.is_bitlog_packet(p):
+                bitlog_packets.append(BitlogPacket(p))
+        return bitlog_packets
+
 
 def read_packets(file, packet_class):
     """Read packets from file."""
