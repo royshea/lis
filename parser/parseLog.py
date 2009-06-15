@@ -306,7 +306,7 @@ def usage():
         Name of file containing trace of log packets.  Default value
         is: trace.txt.
 
-    -r, --rlsi=<rlsi_file>
+    -r, --rlsi=<rlis_file>
         File containing the RLSI specification for the log.
 
     -f, --format=<trace_file_format>
@@ -324,7 +324,7 @@ if __name__ == '__main__':
 
     # Process arguments
     trace_file = "trace.txt"
-    rlsi_file = None
+    rlis_file = None
     print_packets = False
     mode = "network"
     try:
@@ -341,7 +341,7 @@ if __name__ == '__main__':
         elif o in ("-t", "--trace"):
             trace_file = a
         elif o in ("-r", "--rlsi"):
-            rlsi_file = a
+            rlis_file = a
         elif o in ("-p", "--print"):
             print_packets = True
         elif o in ("-f", "--format="):
@@ -354,7 +354,7 @@ if __name__ == '__main__':
 
     # Check for valid command line
     assert mode == "network" or mode == "system", "Unknown mode: %s" % mode
-    assert print_packets or rlsi_file, "Must specify rlis or print"
+    assert print_packets or rlis_file, "Must specify rlis or print"
 
     # Read in the packets
     if mode == "network":
@@ -366,11 +366,7 @@ if __name__ == '__main__':
     packets = packet.read_packets(trace_file, packet_class)
 
     # Create list of bitlog packets:
-    bitlog_packets = []
-    for p in packets:
-        if packet.BitlogPacket.is_bitlog_packet(p):
-            bitlog_packets.append(packet.BitlogPacket(p))
-
+    bitlog_packets = packet.BitlogPacket.get_bitlog_packets(packets)
 
     # Create a source trace from the packets
     bitlog_traces = packetTrace.SourceTrace(bitlog_packets)
@@ -382,7 +378,7 @@ if __name__ == '__main__':
         sys.exit(0)
 
     # Initialize the token tables
-    token_table = rlisTokens.TokenTable(rlsi_file)
+    token_table = rlisTokens.TokenTable(rlis_file)
     # print token_table
 
     # Initialize parser
