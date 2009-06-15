@@ -260,8 +260,10 @@ class TokenTable:
         self.point_token_width = 1
 
         # Create a generic POINT token with no information
+        #
+        # NOTE: This assumes that all point tokens are in the footer.
+        # But that may not always be correct.
         self.point_token = RlisEntry(["footer", "", "point", 0, 0])
-        self.point_token.type = None
         self.point_token.function_name = None
         self.point_token.id = None
         self.point_token.width = None
