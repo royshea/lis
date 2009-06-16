@@ -19,11 +19,11 @@ class CallTree:
         self.node_id = node_id
         self.body = body
         self.parent = parent
-        self.children = []
+        self.children = {}
 
 
     def _insert_child(self, child):
-        self.children.append(child)
+        self.children[child.node_id] = child
 
 
     def add_child(self, node_id, body=None):
@@ -39,14 +39,14 @@ class CallTree:
     def __str__(self):
         out_string = ""
         out_string += "%s\n" % self.node_id
-        for child in self.children:
+        for (child_id, child) in self.children.items():
             out_string += str(child)
             out_string += "%s -> %s\n" % (self.node_id, child.node_id)
         return out_string
 
 
 class FullCallTree(CallTree):
-    """Specialized CallTree that forecs each node to be unique."""
+    """A call tree that forces each node (call / action) to be unique."""
 
 
     def __init__(self, node_id, body=None, parent=None):
