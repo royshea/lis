@@ -6,6 +6,7 @@ import packet
 import packetTrace
 import chunkStream
 import parseLog
+import Numeric
 
 class CallTree:
     """Basic tree class used to build call trees.
@@ -34,6 +35,33 @@ class CallTree:
 
     def get_parent(self):
         return self.parent
+
+
+    def num_nodes(self):
+        """Return the number of nodes in the subtree rooted at self."""
+        child_count = 0
+        for child in self.children.values():
+            count = child.num_nodes()
+            child_count += count
+        return 1 + child_count
+
+
+    def leaf_depth(self):
+        """Return depth of each leaf in the tree."""
+
+        depth_lists = [child.leaf_depth() for child in self.children.values()]
+        if depth_lists == []: return [0]
+        depths = sum(depth_lists, [])   # Flatten the lists
+        return [1 + depth for depth in depths]
+
+
+    def branch_sizes(self):
+        """Return a list containing the branching factor of every node."""
+
+        branch_lists = [child.branch_sizes() for child in self.children.values()]
+        branches = sum(branch_lists, [])    # Flatten the lists
+        branches.append(len(self.children))
+        return branches
 
 
     def __str__(self):
@@ -182,7 +210,21 @@ def main():
         [tokens, times] = zip(*tokens_and_times)
         tree = FullCallTree("root")
         tree.build_from_tokens(tokens)
-        print tree
+        print "Leaf Depths:"
+        print_list_stats(tree.leaf_depth())
+        print "Branch Sizes:"
+        print_list_stats(tree.branch_sizes())
+        print "Branch Sizes (no leaf):"
+        print_list_stats([b for b in tree.branch_sizes() if b != 0])
+
+
+def print_list_stats(l):
+
+    print "Len:", len(l)
+    print "Sum:", sum(l)
+    print "Avg:", Numeric.average(l)
+    print "Max:", max(l)
+    print "Min:", min(l)
 
 
 if __name__ == '__main__':
