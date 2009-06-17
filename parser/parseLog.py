@@ -284,7 +284,7 @@ class RoiParser:
         while True:
             offset = self._scan_chunk(stream)
             if offset == None:
-                assert False, "sync error"
+                sys.stderr.write("Sync error on block %d\n" % stream.chunk_index)
                 if not stream.next_chunk(): break
                 continue
 
