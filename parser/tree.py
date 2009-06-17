@@ -64,34 +64,6 @@ class CallTree:
         return branches
 
 
-    def __str__(self):
-        out_string = ""
-        out_string += "%s\n" % self.node_id
-        for (child_id, child) in self.children.items():
-            out_string += str(child)
-            out_string += "%s -> %s\n" % (self.node_id, child.node_id)
-        return out_string
-
-
-class FullCallTree(CallTree):
-    """A call tree that forces each node (call / action) to be unique."""
-
-
-    def __init__(self, node_id, body=None, parent=None):
-        CallTree.__init__(self, node_id, body, parent)
-        self.tree_counter = None
-        if parent == None:
-            self.tree_counter = 0
-
-
-
-    def add_child(self, token, data=None):
-        node_id = self._token_id(token, data)
-        child = FullCallTree(node_id, token, self)
-        self._insert_child(child)
-        return child
-
-
     def build_from_tokens(self, tokens):
 
         node = self
@@ -129,6 +101,51 @@ class FullCallTree(CallTree):
             else:
                 assert False, "Unexpected token type"
 
+
+    def _print_list_stats(self, l):
+        print "Len:", len(l)
+        print "Sum:", sum(l)
+        print "Avg:", Numeric.average(l)
+        print "Max:", max(l)
+        print "Min:", min(l)
+
+
+    def print_tree_stats(self):
+        print "Leaf Depths:"
+        self._print_list_stats(self.leaf_depth())
+        print "Branch Sizes:"
+        self._print_list_stats(self.branch_sizes())
+        print "Branch Sizes (no leaf):"
+        self._print_list_stats([b for b in self.branch_sizes() if b != 0])
+
+
+    def __str__(self):
+        out_string = ""
+        out_string += "%s\n" % self.node_id
+        for (child_id, child) in self.children.items():
+            out_string += str(child)
+            out_string += "%s -> %s\n" % (self.node_id, child.node_id)
+        return out_string
+
+
+class FullCallTree(CallTree):
+    """A call tree that forces each node (call / action) to be unique."""
+
+
+    def __init__(self, node_id, body=None, parent=None):
+        CallTree.__init__(self, node_id, body, parent)
+        self.tree_counter = None
+        if parent == None:
+            self.tree_counter = 0
+
+
+    def add_child(self, token, data=None):
+        node_id = self._token_id(token, data)
+        child = FullCallTree(node_id, token, self)
+        self._insert_child(child)
+        return child
+
+
     def _next_tree_counter(self):
         if self.parent == None:
             counter = self.tree_counter
@@ -149,9 +166,11 @@ class FullCallTree(CallTree):
         """
 
         if token.type == rlisTokens.RlisEntry.HEADER or \
-                token.type == rlisTokens.RlisEntry.FOOTER or \
-                token.type == rlisTokens.RlisEntry.CALL:
+                token.type == rlisTokens.RlisEntry.FOOTER:
             id = "%s_%d" % (token.function_name, self._next_tree_counter())
+
+        elif token.type == rlisTokens.RlisEntry.CALL:
+            id = "%s_%d" % (token.target, self._next_tree_counter())
 
         elif token.type == rlisTokens.RlisEntry.CONDITIONAL:
             id = "%s_%d_branch_%d" % (token.function_name,
@@ -166,6 +185,23 @@ class FullCallTree(CallTree):
             assert False, "Unexpected token type:\n%s" % str(token)
 
         return id
+
+
+class OverlayCallTree(FullCallTree):
+    """A call tree where paths are overlayed.
+
+    The overlay ignores the order calls made from a node.  So if foo
+    calls bar twice, the resulting tree would simply be "foo -> bar".
+    """
+
+    def add_child(self, token, data=None):
+        for child in self.children.values():
+            if child.body.function_name == token.function_name:
+                return child
+        node_id = self._token_id(token, data)
+        child = OverlayCallTree(node_id, token, self)
+        self._insert_child(child)
+        return child
 
 
 def main():
@@ -208,23 +244,16 @@ def main():
         trace = bitlog_traces.traces[trace_id]
         tokens_and_times = roi_parser.tokenize_trace(trace, start_time)
         [tokens, times] = zip(*tokens_and_times)
-        tree = FullCallTree("root")
+
+        #tree = FullCallTree("root")
+        tree = OverlayCallTree("root")
+
+        #tree.print_tree_stats()
+
         tree.build_from_tokens(tokens)
-        print "Leaf Depths:"
-        print_list_stats(tree.leaf_depth())
-        print "Branch Sizes:"
-        print_list_stats(tree.branch_sizes())
-        print "Branch Sizes (no leaf):"
-        print_list_stats([b for b in tree.branch_sizes() if b != 0])
-
-
-def print_list_stats(l):
-
-    print "Len:", len(l)
-    print "Sum:", sum(l)
-    print "Avg:", Numeric.average(l)
-    print "Max:", max(l)
-    print "Min:", min(l)
+        print "digraph {"
+        print str(tree)
+        print "}"
 
 
 if __name__ == '__main__':
