@@ -221,6 +221,10 @@ def main():
             default="network", help="Specify the trace mode that " +
             "may be either network or system [default: %default]")
 
+    parser.add_option("-s", "--spread", action="store_true",
+            dest="spread", help="Output a fully spread tree, rather than " +
+            "overlaying similar calls")
+
     (options, args) = parser.parse_args()
 
     if len(args) != 2:
@@ -252,10 +256,10 @@ def main():
         tokens_and_times = roi_parser.tokenize_trace(trace, start_time)
         [tokens, times] = zip(*tokens_and_times)
 
-        #tree = FullCallTree("root")
-        tree = OverlayCallTree("root")
-
-        #tree.print_tree_stats()
+        if options.spread:
+            tree = FullCallTree("root")
+        else:
+            tree = OverlayCallTree("root")
 
         tree.build_from_tokens(tokens)
         print "digraph {"
