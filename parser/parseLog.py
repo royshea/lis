@@ -301,6 +301,13 @@ class RoiParser:
 
             offset = self._scan_chunk(stream)
 
+            # Log how many bits were dropped when scanning the block
+            if offset == None:
+                sys.stderr.write("Dropped bits: %d\n" %
+                        len(stream.chunks[stream.chunk_index]))
+            else:
+                sys.stderr.write("Dropped bits: %d\n" % offset)
+
             if offset == None:
                 sys.stderr.write("Sync error on block %d\n" % stream.chunk_index)
                 if not stream.next_chunk(): break
