@@ -54,7 +54,7 @@ build_cil ()
     do
         cp -r cil 1.3.6-targets-$PLAT
         cd $BASE/1.3.6-targets-$PLAT
-        patch -p1 < $BASE/lis-core/cil-$PLAT.diff
+        patch -p1 < $BASE/lis-core/install/cil-$PLAT.diff
         cd -
     done
 
@@ -85,7 +85,7 @@ build_cil ()
 ####
 build_lis ()
 {
-    echo TODO
+    CILPATH=$BASE/1.3.6-cil make -C $BASE/lis-core/lis
 }
 
 
@@ -100,7 +100,9 @@ then
     echo "Must specify target install directory"
     exit
 else
-    BASE=$1
+    cd $1
+    BASE=`pwd`
+    cd -
 fi
 
 # Obtain LIS
