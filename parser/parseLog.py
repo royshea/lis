@@ -234,7 +234,6 @@ class RoiParser:
                 # Bad parse attempt
                 continue
 
-        best_string = ""
         best_offset = None
         best_score = None
         for (guess_offset, guess_tokens) in guesses:
@@ -243,7 +242,6 @@ class RoiParser:
                 # Force setting best_score if it has not yet been set
                 best_score = score - 1
             if score > best_score:
-                best_string = guess_tokens
                 best_offset = guess_offset
                 best_score = score
 
@@ -263,21 +261,34 @@ class RoiParser:
         # Small offset is good
         offset = offset
 
-        # Global IDs encountered from a non-zero depth call stack bad
-        # (implies either an interrupt that is rarely observed in the
-        # analysis done so far, or a parsing problem).
-        #
-        # NOTE: This step is VERY specific to the actual data set we are
-        # parsing.
-        #
-        # TODO: This part of the heuristic has been disabled due to
-        # difficulties obtaining call depth.
-        interrupts = 0
-        # for token in tokens:
-        #     if line.find("GLOBAL") > 0 and calldepth > 0:
-        #         interrupts += 1
+        # Global IDs encountered from a non-zero depth call stack are
+        # avoided.  These imply one of:
+        # - Interuption while within an ROI by an interrupt that we are
+        #   also tracking.  (rarely observed in current data sets).
+        # - Parsing error.
+        # - Call to an entry function from within the ROI.  These
+        #   happen, but this heuristic implementation assumes that they
+        #   don't happen that often.
+        double_global = 0
+        call_depth = 0
+        for token in tokens:
 
-        return num_tokens - offset - (10 * interrupts)
+            if token.type == rlisTokens.RlisEntry.HEADER and \
+                    token.scope == rlisTokens.RlisEntry.GLOBAL and \
+                    call_depth > 0:
+                double_global += 1
+
+            if (token.type == rlisTokens.RlisEntry.HEADER and
+                    token.scope == rlisTokens.RlisEntry.GLOBAL
+                    ) or (
+                    token.type == rlisTokens.RlisEntry.CALL and
+                    token.scope == rlisTokens.RlisEntry.LOCAL):
+                call_depth += 1
+            elif token.type == rlisTokens.RlisEntry.FOOTER and \
+                    token.scope == rlisTokens.RlisEntry.POINT:
+                call_depth = max(call_depth - 1, 0)
+
+        return num_tokens - offset - (10 * double_global)
 
 
     def print_roi_call_trace(self, trace, start_time=0):
@@ -318,9 +329,23 @@ class RoiParser:
         tokens_and_times = []
 
         while True:
+
+            # Add marker (None, None) noting that a new chunk has been
+            # entered
+            if tokens_and_times != []:
+                tokens_and_times.append((None, None))
+
             offset = self._scan_chunk(stream)
+
+            # Log how many bits were dropped when scanning the block
             if offset == None:
-                assert False, "sync error"
+                sys.stderr.write("Dropped bits: %d\n" %
+                        len(stream.chunks[stream.chunk_index]))
+            else:
+                sys.stderr.write("Dropped bits: %d\n" % offset)
+
+            if offset == None:
+                sys.stderr.write("Sync error on block %d\n" % stream.chunk_index)
                 if not stream.next_chunk(): break
                 continue
 

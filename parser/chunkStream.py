@@ -49,7 +49,6 @@ class DataEnd(Exception):
         return repr(self.value)
 
 
-
 class ChunkStream:
     """Present a stream of data as blocks of contiguous data payloads.
 
