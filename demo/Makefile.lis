@@ -1,24 +1,26 @@
 # Author: Roy Shea (royshea@gmail.com)
 # Date:  6/1/09
 
-LIS = ../lis/x86-lis
-INCLUDES += -I ../bitlog
-LIBS += -L ../bitlog -l bitlog
+LIS_PATH = /home/rshea/git/lis-core
+
+LIS = $(LIS_PATH)/lis/x86-lis
+INCLUDES += -I $(LIS_PATH)/bitlog
+LIBS += -L $(LIS_PATH)/bitlog -l bitlog
 
 ifndef $(LISFILE)
 LISFILE = default.lis
 endif
 
-SOURCES += sendlog.c
+SOURCES += send_log.c
 PREPROCS = $(SOURCES:.c=.i)
 
 .PRECIOUS: %.lis.c
 
 %.i: %.c
-	$(CPP) $< -o $@
+	$(CPP) $(INCLUDES) $< -o $@
 
 $(LISGOAL).i: $(PREPROCS)
-	cat $? > $@
+	cat $^ > $@
 
 $(LISGOAL).c: $(LISGOAL).i
 	@echo "Be sure to inculed bitlog.h and link in the bitlog library"
@@ -34,5 +36,5 @@ $(LISGOAL).o: $(LISGOAL).c
 lis: $(LISGOAL).o
 	$(CC) $(CFLAGS) $? $(LIBS) -o $(LISGOAL)
 
-lis_clean: spotless
-	rm -f $(LISFILE).rlis $(LISGOAL).o $(LISGOAL).c *.i demo_lis
+lis_clean: clean
+	rm -f $(LISFILE).rlis $(LISGOAL).o $(LISGOAL).c *.i

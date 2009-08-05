@@ -2,19 +2,26 @@
 # Date:  6/1/09
 
 CC = gcc
-CPP = cpp
 CFLAGS = -g -Wall
 
 SOURCES = demo.c
 OBJECTS = $(SOURCES:.c=.o)
 
+####
+# Build rules
+####
+
 all: demo
 
 demo: $(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS) -o $@
+	$(CC) $(CFLAGS) $? -o $@
 
 .c.o:
 	$(CC) -c $(CFLAGS) $< -o $@
+
+####
+# Clean up our mess...
+####
 
 clean:
 	rm -f *.o
@@ -22,6 +29,9 @@ clean:
 spotless: clean
 	rm -f demo
 
+####
+# Special LIS target
+####
+
 LISGOAL = demo_lis
 include Makefile.lis
-
