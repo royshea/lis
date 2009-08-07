@@ -1,0 +1,45 @@
+Token Scoping
+=============
+
+LIS provides an infrastructure for logging tokens.  The LIS script
+describes where within the program a token should be logged.  The value
+of the logged token is determined using one of three basic scoping
+rules.  Token values do not change at runtime, so a token logged as the
+result of a given LIS statement will always have the same value.
+
+Three Scopes
+------------
+
+Global Scoping
+~~~~~~~~~~~~~~
+
+Global scoping is specified using the +global+ keyword.  A token logged
+as the result of a globally scoped LIS statement is guaranteed to be unique
+amongst all tokens logged by LIS.
+
+
+Local Scoping
+~~~~~~~~~~~~~
+
+Local scoping is specified using the +local+ keyword.  A token logged as
+the result of a locally scoped LIS statement is guaranteed to have be
+unique among all tokens generated from within the same function, as
+specified by the placement specifier of the statement.
+
+
+Point Scoping
+~~~~~~~~~~~~~
+
+Point scoping is specified using the +point+ keyword.  All tokens logged
+from statements using the point scope have the same small value.
+
+
+Motivation Behind Scopes
+------------------------
+
+The three scopes provide a means to optimize the bandwidth required for
+a specific logging task.  A logging system using only the global scope
+is easy to construct, but often times wasteful since all tokens occupy
+the same name space.  The local and point tokens can be used to reduce
+the size of name spaces.  This trade off has been discussed in more
+detail in LIS related link:../publications.html[publications].

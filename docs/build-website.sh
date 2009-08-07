@@ -17,6 +17,7 @@ $ASCIIDOC_HTML --conf-file=../${LAYOUT}.conf --attribute iconsdir=../icons -a to
 cd ..
 
 cd manual
-# $ASCIIDOC_HTML --conf-file=../${LAYOUT}.conf --attribute iconsdir=../icons -a toc --attribute=styledir=.. index.txt
 $ASCIIDOC_HTML --conf-file=../${LAYOUT}.conf  -a iconsdir=../icons -a toc -a latexmath -a styledir=.. index.txt
+$ASCIIDOC_HTML --conf-file=../${LAYOUT}.conf  -a iconsdir=../icons -a toc -a latexmath -a styledir=.. language.txt
+$ASCIIDOC_HTML --conf-file=../${LAYOUT}.conf  -a iconsdir=../icons -a toc -a latexmath -a styledir=.. scoping.txt
 cd ..
