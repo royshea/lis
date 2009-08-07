@@ -1,0 +1,26 @@
+Downloading LIS
+===============
+
+
+Installation Script
+-------------------
+
+link:install.sh[LIS Installation Script]
+
+The LIS installation script automates downloading, configuring, and
+building LIS.  For more information look at the
+link:installation.html[LIS installation instructions].
+
+
+Snapshots (TODO)
+---------
+
+
+Git Access (TODO)
+----------
+
+----
+git clone http://projects.nesl.ucla.edu/~rshea/git/
+----
+
+LIS is maintained in a public git repository.  It can be cloned using:

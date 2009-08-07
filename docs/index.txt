@@ -1,0 +1,141 @@
+Log Instrumentation Specifications (LIS)
+=======================================
+
+Overview
+--------
+
+[NOTE]
+=========
+
+This documentation is a work in progress (June 2009).  Two
+tarballs are available while this document is under construction.  The
+first is a copy of LIS that has full TinyOS integration.  The second is
+a tarball of just the LIS core for use on desktop systems.
+
+* link:lis-tinyos.tgz[LIS for TinyOS]
+
+* link:lis-core.tgz[LIS Core]
+========
+
+What is LIS?
+~~~~~~~~~~~~
+
+The log instrumentation specification (LIS) language provides a simple
+and powerful means to describe data you want to gather from a system at
+runtime.
+
+Users can quickly write a LIS script to accomplish basic logging tasks.
+Higher level analyses that provide specialized logging functionality
+also use LIS as an intermediate language to direct insertion of logs
+into a code base.
+
+LIS is optimized to provide logs using minimal system resources, ranging
+from log bandwidth minimization to occupying a small runtime footprint.
+This makes LIS a great tool for diagnosing problems and exploring
+runtime behavior in resource constrained embedded systems.
+
+LIS does not allow completely free form logging.  Rather, it logs a
+stream of markers triggered when a program passes a point of interest
+described in a LIS script and potentially a variable value (for watch
+points).  This restricted logging framework helps users to formalize
+their logging tasks and makes for a lean instrumentation engine and
+runtime.
+
+
+Why use LIS?
+~~~~~~~~~~~~
+
+Unlike +printf+ and similar logging systems that require manual system
+instrumentation, the LIS script is used at compile time to automate
+instrumentation of a code base.  This saves programmer time and effort,
+prevents copy and paste errors common to manual log insertion, and makes
+it trivial to remove logging after a problem or question has been
+resolved.
+
+In some execution domains traditional debugging methods are unwieldy or
+simply unavailable.  For example, physical access to a deployed wireless
+embedded device often inhibits the use of JTAG or delays caused by
+interactive debuggers can mask and create new runtime errors in systems
+of interacting devices.
+
+LIS has been used to debug programs and look deeply into the runtime
+behavior of both desktop and embedded systems.  It has been used to
+examine:
+
+* Standard C programs running on x86 processors
+
+* Distributed embedded software running on the ATMega128  processor
+
+* Distributed embedded software running on the MSP430 processor
+
+
+What do I need to use LIS?
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The LIS framework is designed to instrument C programs.  Other
+languages, such as nesC, that compile to C at an intermediate step can
+also be handled by the LIS framework.  LIS depends on the following
+additional tools:
+
+* http://manju.cs.berkeley.edu/cil/[CIL] which is built using
+http://caml.inria.fr/[OCaml] to instrument the programs
+
+* http://www.python.org/doc/[Python] for log parsing and used by some of
+the analyses in the distribution that use LIS as an intermediary
+language
+
+* The actual LIS distribution is available as a tarball or (for the
+latest and greatest) via http://git-scm.com/[git]
+
+* Good 'ol ANSI C for runtime logging support and compiling C programs
+
+
+
+Integration into TinyOS
+-----------------------
+
+LIS was specifically developed for collecting data from resource
+constrained wireless embedded systems.  We have provided full
+integration with the TinyOS 2.x operating system.  This support
+provides:
+
+* Build integration via a new "lis" option as an add-on to the mica2,
+micaZ and TelosB targets
+
+* Low overhead +bitlog+ runtime library providing basic logging support
+
+* Multi-hop log delivery using the
+http://www.tinyos.net/tinyos-2.1.0/doc/html/tep123.html[collection tree
+protocol]
+
+* Single-hop log delivery using the +AMSend+ interface
+
+The following installation script will download a clean version of
+TinyOS and integrate LIS support into it.
+
+link:install/tos_install.sh[TinyOS Installation Script]
+
+The installation script takes as input a base directory describing where
+you installed LIS and a base directory where you want to install TinyOS.
+
+----
+wget http://projects.nesl.ucla.edu/~roy/lis/install/tos_install.sh
+sh tos_install.sh $HOME/local/ $HOME/local
+----
+
+The TinyOS support can be accessed via one of two modes: directly via
+LIS scripts or using a higher level analysis that implements optimized
+call trace generation.
+
+----
+# Move into demo directory
+cd apps/MultihopLogTapRadioCountToLeds
+
+# Generate image instrumented based on the "health_no_crc.lis" script
+LIS_FILE=health_no_crc.lis make telosb lis
+
+# Generate image that gathers call traces through the LedsP and
+# CtpRoutingEngineP TinyOS components.
+LOG_PREFIX="LedsP CtpRoutingEngineP" make telosb lowlog
+----
+

@@ -1,0 +1,175 @@
+Tutorial
+========
+
+LIS Workflow Overview
+---------------------
+
+The standard LIS work flow includes five stages.
+
+1. *LIS Script Composition*: In the first step the user writes a LIS
+script or generates a LIS script using a higher level analysis.  This
+script describes a specific logging task.
+
+2. *Program Instrumentation*: The LIS instrumentation engine uses this
+script to drive instrumentation of a user program and emits a new
+instrumented copy of the source code.
+
+3. *Building the Instrumented Program*: The instrumented program
+produced by the instrumentation engine is compiled.  If the original
+program does not include logging support, then an external logging
+library is linked into the instrumented program at compile time.
+
+4. *Executing the Program*: The built program is now ready to run.  Logs
+produced from program execution can be collected for later analysis.
+
+5. *Log Parsing*: The LIS distribution includes a tokenizer that
+tokenizes logs and a parser that pretty prints the stream of log tokens.
+The parsing framework is designed for capturing a broad class of call
+traces and can be adapted to other logging tasks.
+
+
+LIS Script Composition
+~~~~~~~~~~~~~~~~~~~~~~
+
+A LIS script contains one or more statements.  Each statement describes
+a location within the program that, when encountered at run time, will
+record a value.  The resulting log of recorded values can be used to
+understand a great deal about the runtime behavior of a system.th:e
+
+Each statement specifies
+one of five log placement types and what part of the problem the
+statement should be applied to.
+
+All statement include a _placement_ and _scope_ specifier.  The
+_placement_ specifier is the name of the function that the statement
+should be applied to.  The _scope_ specifier describes the name space
+from which the logged token should be taken and can be one of +global+,
++local+, or +point+.  Token scoping is described in more detail below.
+
+
+The five statement types and their syntax are:
+
+Header
+++++++
+
++header+ _placement_ _scope_
+
+Log a token taken from _scope_ when function _placement_ is entered.
+
+Footer
+++++++
+
++footer+ _placement_ _scope_
+
+Log a token taken from _scope_ when returning from function _placement_.
+
+Call
+++++
+
++call+ _placement_ _scope_ _target_
+
+Log a token taken from _scope_ when function _placement_ calls into
+function _target_.  The special +__PTR__+ token (note the two leading
+and trailing underscores) can be used as the _target_to log function
+pointer calls.
+
+Conditional
++++++++++++
+
++conditional+ _placement_ _scope_ _flag_ _var_
+
+Log a token taken from _scope_ describing the branch taken by control
+flow statement of type _flag_ and guarded by an expression using the
+variable _var_ within function _placement_.  The _flag_ is an ORed set
+of:
++
+* 1 to denote +if-else+ statements
+* 2 to denote +switch-case+ statements
+* 4 to denote loops (such as +while+ and +for+ constructs)
++
+Thus, a flag value of 5 will log loop constructs and +if-else+
+statements, but not +switch-case+ statements.  If filtering on _var_ is
+not desired, the special +__NULL__+ token (note the two leading and trailing
+underscores) can be used.
+
+Watch
++++++
+
++watch+ _placement_ _scope_ _var_
+
+Log a token taken from _scope_ followed by the value of _var_ each time
+that _var_ appears as an l-value within function _placement_.
+
+
+
+Weaving LIS into a Program
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A LIS script drives instrumentation of a program using the +lis+
+program.  The +lis+ program takes as input a preprocessed program and
+the LIS script, and produces as output an instrumented program and
+optionally the resolved LIS (RLIS) script.  The instrumentation engine
+inserts calls to a holder function that can be replaced with the system
+specific logging function using +sed+.
+
+----
+# Create test.c an test.lis files
+vim test.c test.lis
+
+# Instrument program
+cpp test.c test.i
+lis --lis test.lis --rlis test.rlis --out test.lis.c
+
+# Replace holder function with libbitlog logging
+sed -e '/extern void HOLDER_FUNC(char const   \*msg ) ;/d' < test.lis.c > test.bitlog.tmp
+sed -e 's/HOLDER_FUNC("\(.*\) \(.*\)");/bitlog_write_data(\1, \2);/' < test.bitlog.tmp > test.bitlog.c
+
+# If the bitlog library was not already used in test.c, the user will
+# need to manually include the bitlog.h header file and initialize the
+# bitlog library
+----
+
+This instrumentation procedure is mostly automated through the
++Makefile.lis+ from the core LIS distribution in conjunction with a
+projects current build system.
+
+The output RLIS script is simply the original LIS script along with
+resolved token identifiers that will be logged at runtime.  Token
+identifiers are assigned by the instrumentation engine using the
+following strategy:
+
+Global Scoping::
+    Token value unique among all LIS tokens.
+
+Local Scoping::
+    Token value unique within the host function. Token value
+may appear in local name spaces for other functions.
+
+Point Scoping::
+    Single unique token value (all point tokens have the same value).
+
+
+Collecting runtime logs
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Collection of runtime logs is specific to the underlying log management
+software running on the system.  The LIS core includes a simple demo
+application that uses the included +send_log.c+ to print log data over
+standard error.  These logs can be redirected into a file for subsequent
+analysis:
+
+----
+./demo_lis 2> log.txt
+----
+
+Viewing logs
+~~~~~~~~~~~~
+
+LIS includes a generic parser that is able to parse a wide collection of
+logs.  It takes as input a log file and the associated RLIS script.  It
+uses this information to parse the log and produce a formatted output of
+runtime tokens encountered in from the trace.
+
+----
+parseLog.py -r test.rlis -f system -t log.txt
+----
