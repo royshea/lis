@@ -17,6 +17,24 @@
 set -o nounset
 set -o errexit
 
+SOURCEFORGE=http://downloads.sourceforge.net
+PROJECTS=http://projects.nesl.ucla.edu
+
+####
+# Download a file
+####
+get_file ()
+{
+    cd $BASE
+    wget -c --read-timeout=120 --retry-connrefused "$3" "$1"
+    file=`basename $1`
+    check_sum=`sha1sum < $file | sed 's/ .*//'`
+    if [ "$check_sum"x != "$2"x ]
+    then
+       die "sha1sum mismatch!  Rename $file and try again."
+    fi
+    cd -
+}
 
 ####
 # Get a copy of LIS
@@ -24,8 +42,9 @@ set -o errexit
 get_lis ()
 {
     cd $BASE
-    wget http://projects.nesl.ucla.edu/~rshea/lis/lis-core.tgz
+    get_file $PROJECTS/~rshea/lis/lis-core.tgz c9e1f5761d650f3631dc734180d7b70fdf300d82 "--no-check-certificate"
     tar -xzvf lis-core.tgz
+    mv lis-core.tgz build.lis
     cd -
 }
 
@@ -36,8 +55,9 @@ get_lis ()
 get_cil ()
 {
     cd $BASE
-    wget http://manju.cs.berkeley.edu/cil/distrib/cil-1.3.6.tar.gz
+    get_file $SOURCEFORGE/project/cil/cil/cil-1.3.6/cil-1.3.6.tar.gz b57b08fad26b54a85e63c0fb6ded7858376939e2 ""
     tar -xzvf cil-1.3.6.tar.gz
+    mv cil-1.3.6.tar.gz build.lis
     cd -
 }
 
@@ -57,6 +77,7 @@ build_cil ()
         patch -p1 < $BASE/lis-core/install/cil-$PLAT.diff
         cd -
     done
+    mv cil build.lis
 
     # Build source for different targets
     cd $BASE/1.3.6-targets-native
@@ -76,6 +97,7 @@ build_cil ()
     for TARGET in avr msp430 native
     do
         cp -r $BASE/1.3.6-targets-$TARGET/obj/* $BASE/1.3.6-cil/obj/
+        mv $BASE/1.3.6-targets-$TARGET $BASE/build.lis
     done
 }
 
@@ -102,6 +124,7 @@ then
 else
     cd $1
     BASE=`pwd`
+    mkdir build.lis
     cd -
 fi
 
