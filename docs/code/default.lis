@@ -1,0 +1,5 @@
+header main global
+footer main point
+header collatz_conjecture global
+footer collatz_conjecture point
+conditional collatz_conjecture local 7 __NULL__

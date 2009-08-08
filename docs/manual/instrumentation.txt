@@ -1,0 +1,113 @@
+Instrumentation Using LIS
+=========================
+
+A LIS script drives instrumentation of a program using the +lis+
+utility.  The +lis+ program takes as input a preprocessed program and a
+LIS script, and produces as output an instrumented program and
+optionally the resolved LIS (RLIS) script.  This instrumentation process
+inserts calls to a generic holder function that can be replaced with a
+system specific logging function using +sed+.
+
+
+Makefile.lis
+------------
+
+Instrumentation for projects using make files can directly use
++Makefile.lis+ with only minor requirements to the underlying +Makefile+
+and project source code.
+
+This approach using +Makefile.lis+ assumes that logs are gathered using
+the +bitlog_write_data+.  A basic logging library providing this
+interface and is located in the +bitlog/+ directory of the LIS
+distribution.  For more details look at the link:bitlog.html[bitlog
+library instrumentation].  The project source code needs to be extended
+to include the +bitlog.h+ header file and initialize the logging system
+using a call to +bitlog_init+.
+
+Extend the build system by copying +Makefile.lis+ into the directory for
+the project, updating the +LIS_PATH+ variable within +Makefile.lis+ to
+point to the local installation of the LIS core, and extending the
++Makefile+ for the project with the following two lines:
+
+----
+LISGOAL = demo_lis
+include Makefile.lis
+----
+
+The +LISGOAL+ variable can be changed to the name desired for the final
+instrumented binary.  Adding the above two lines to the +Makefile+
+results in a new +lis+ target that builds an instrumented version of the
+project.  This can be called from the command line using:
+
+----
+make lis
+----
+
+The system will look for the LIS script in the default location of
++default.lis+.  The +LISFILE+ environment variable can be used to
+redefine the name of the LIS script that the build system should use.
+
+
+
+Manual Instrumentation
+----------------------
+
+Manual instrumentation is accomplished using the following general
+strategy.
+
+
+Add bitlog Support to Program
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Basic logging support is provided by the +bitlog+ library.  For more
+details look at the link:bitlog.html[bitlog library instrumentation].
+The project source code needs to be extended to include the +bitlog.h+
+header file and initialize the logging system using a call to
++bitlog_init+.
+
+
+Preprocess Project Source Code
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The +lis+ binary acts on preprocessed source code.  This is accomplished
+by preprocessing each file for a project and concatenating these files
+into a single location.
+
+----
+cpp foo.c foo.i
+cpp bar.c bar.i
+cat foo.i bar.i > baz.i
+----
+
+
+Instrumenting the Program
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The +lis+ application instruments the program as directed by a LIS file.
+It produces as output the instrumented program and (optionally) the
+resolved LIS file.
+
+----
+lis --lis default.lis --rlis default.rlis --out baz.lis.c baz.i
+----
+
+
+Redirect Calls to HOLDER_FUNC
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The instrumented program uses a generic +HOLDER_FUNC+ to log data.
+These calls must be redirected to an implemented function.  Assuming the
+use of the link:bitlog.html[bitlog library], this can be accomplished
+using the following +sed+ commands:
+
+----
+sed -e '/extern void HOLDER_FUNC(char const   \*msg ) ;/d' < test.lis.c > test.bitlog.tmp
+sed -e 's/HOLDER_FUNC("\(.*\) \(.*\)");/bitlog_write_data(\1, \2);/' < test.bitlog.tmp > test.bitlog.c
+----
+
+
+Build the Final Program
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Build the final project using the instrumented source code.
+

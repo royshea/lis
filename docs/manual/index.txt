@@ -3,3 +3,8 @@ LIS Reference Manual
 
 * link:language.html[LIS Language Specification]
 * link:scoping.html[Token Scoping]
+* link:instrumentation.html[Program Instrumentation]
+* link:bitlog.html[Bitlog Libary]
+    - link:send_log.html[Sample Implementation of send_log]
+* link:instrumentation.html[Program Instrumentation]
+* link:parsing.html[Parsing Logs]

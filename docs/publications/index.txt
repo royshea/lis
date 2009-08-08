@@ -1,0 +1,17 @@
+LIS Related Publications
+========================
+
+LIS Specific Papers and Presentations
+-------------------------------------
+
+TODO
+
+General Papers on Logging and Debugging in Wireless Embedded Systems
+--------------------------------------------------------------------
+
+TODO
+
+Other Related Works
+-------------------
+
+TODO
