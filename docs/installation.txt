@@ -5,7 +5,7 @@ Prerequisites
 -------------
 
 These installation instructions assume a system with a basic build
-system for C and Ocaml.  For Ubuntu Linux distrobutions, this can be
+system for C and Ocaml.  For Ubuntu Linux distributions, this can be
 accomplished using:
 
 ----
