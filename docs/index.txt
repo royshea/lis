@@ -9,7 +9,7 @@ Overview
 
 This documentation is a work in progress.  As of Aug. 2009 it is nearly
 complete, but a few holes do still exist.  Feel free to email
-mail:royshea@gmail.com[Roy] if you need additional information.
+mailto:royshea@gmail.com[Roy] if you need additional information.
 ========
 
 What is LIS?
