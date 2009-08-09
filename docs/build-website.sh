@@ -10,8 +10,8 @@ ASCIIDOC_HTML="asciidoc --unsafe --backend=xhtml11 --attribute icons --attribute
 
 $ASCIIDOC_HTML -f ${LAYOUT}.conf -a iconsdir=./icons index.txt
 $ASCIIDOC_HTML -f ${LAYOUT}.conf -a iconsdir=./icons downloads.txt
-$ASCIIDOC_HTML -f ${LAYOUT}.conf -a iconsdir=./icons installation.txt
 $ASCIIDOC_HTML -f ${LAYOUT}.conf -a iconsdir=./icons lis_tinyos.txt
+$ASCIIDOC_HTML -f ${LAYOUT}.conf -a iconsdir=./icons installation.txt
 
 cd publications
 $ASCIIDOC_HTML -f ../${LAYOUT}.conf --a iconsdir=../icons -a styledir=.. index.txt
@@ -31,3 +31,11 @@ $ASCIIDOC_HTML -f ../${LAYOUT}.conf  -a iconsdir=../icons -a styledir=.. bitlog.
 $ASCIIDOC_HTML -f ../${LAYOUT}.conf  -a iconsdir=../icons -a styledir=.. send_log.txt
 $ASCIIDOC_HTML -f ../${LAYOUT}.conf  -a iconsdir=../icons -a styledir=.. parsing.txt
 cd ..
+
+# Set up files used by documentation
+cp ../install/install.sh code/
+cp ../demo/default.lis code/
+cp ../demo/demo.c code/
+cp ../demo/demo.orig.c code/
+cp ../demo/send_log.c code/
+git archive --format=tar --prefix=lis-core/ HEAD | gzip > code/lis-core.tgz
