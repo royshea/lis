@@ -13,9 +13,13 @@ mail:royshea@gmail.com[Roy Shea] if you need additional information or
 encounter any problems.
 
 The following lists the remaining documentation tasks:
+
 * Test tutorial using a clean Ubuntu based machine
+
 * Clean up TinyOS install script
+
 * Put TinyOS patches and install script in public git repository
+
 * Expand description of the LIS parser
 
 ========
