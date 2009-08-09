@@ -1,4 +1,10 @@
 Parsing LIS Logs
 ================
 
-TODO
+LIS includes a generic parser that is able to parse a wide collection of
+logs.  It takes as input a log file and the associated RLIS script.  It
+uses this information to parse the log and produce a formatted output of
+runtime tokens encountered in from the trace.  The parser and utility
+programs are located in +$LISDIR/parser+.
+
+// TODO: Extended description, usage, and limitations.

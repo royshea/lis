@@ -17,19 +17,6 @@ provides:
   tree protocol]
 * Single-hop log delivery using the +AMSend+ interface
 
-The following installation script will download a clean version of
-TinyOS and integrate LIS support into it.
-
-TODO: link:install/tos_install.sh[TinyOS Installation Script]
-
-
-The installation script takes as input a base directory describing where
-you installed LIS and a base directory where you want to install TinyOS.
-
-----
-sh tos_install.sh $HOME/local/ $HOME/local
-----
-
 The TinyOS support can be accessed via one of two modes: directly via
 LIS scripts or using a higher level analysis that implements optimized
 call trace generation.
@@ -46,3 +33,19 @@ LIS_FILE=health_no_crc.lis make telosb lis
 LOG_PREFIX="LedsP CtpRoutingEngineP" make telosb lowlog
 ----
 
+Please email mailto:royshea@gmail.com[Roy Shea] for access to
+installation scripts and access to the TinyOS patches used to integrate
+LIS with TinyOS.
+
+// The following installation script will download a clean version of
+// TinyOS and integrate LIS support into it.
+//
+// TODO: link:install/tos_install.sh[TinyOS Installation Script]
+//
+//
+// The installation script takes as input a base directory describing where
+// you installed LIS and a base directory where you want to install TinyOS.
+//
+// ----
+// sh tos_install.sh $HOME/local/ $HOME/local
+// ----

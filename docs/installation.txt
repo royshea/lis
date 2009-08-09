@@ -5,12 +5,13 @@ Prerequisites
 -------------
 
 These installation instructions assume a system with a basic build
-system for C and Ocaml.  For Ubuntu Linux distributions, this can be
-accomplished using:
+system for C and Ocaml.
 
-----
-sudo apt-get install TODO
-----
+// For Ubuntu Linux distributions, this can be accomplished using:
+//
+// ----
+// sudo apt-get install TODO
+// ----
 
 Installation Script
 -------------------
@@ -67,7 +68,7 @@ Obtain LIS and CIL
 Download the current version of LIS and the 1.3.6 version of CIL to
 the +$LIS_INSTALL+ directory.
 
-* link:lis-core.tgz[lis-core.tgz]
+* link:lis-core.tgz[code/lis-core.tgz]
 * http://downloads.sourceforge.net/project/cil/cil/cil-1.3.6/cil-1.3.6.tar.gz[cil-1.3.6.tar.tgz]
 
 

@@ -100,7 +100,7 @@ def main():
     parser = OptionParser(usage)
 
     parser.add_option("-m", "--mode", dest="mode", metavar="STRING",
-            default="network", help="Specify the trace mode that " +
+            default="system", help="Specify the trace mode that " +
             "may be either network or system [default: %default]")
 
     parser.add_option("-n", "--node", dest="node_id", default=None,

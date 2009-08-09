@@ -65,11 +65,77 @@ return token can be tied back to a specific function.  The choice to use
 local and point tokens improves bandwidth efficacy at an increase in
 parsing complexity.
 
+Additional details on writing LIS scripts are available in the
+link:../manual/language.html[language reference] and
+link:../manual/scoping.html[token scoping rules] documentation.
+
 
 Program Instrumentation
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-TODO
+With the LIS script written, it is time to instrument the program using
+the +lis+ utility.  The +Makefile.lis+ makes this an easy process.  The
+demo program has already been extended to illustrate how this is done.
+
+Examining the end of +demo/Makefile+ shows that it has been extended to
+define a special +LISGOAL+ and pull in the support from +Makefile.lis+:
+
+----
+LISGOAL = demo_lis
+include Makefile.lis
+----
+
+The LIS specific +Makefile.lis+ is placed within the +demo+ project
+directory.  Finally, the +demo.c+ program has also been extended to
+include the +bitlog+ logging library header file, initialize the logger,
+and explicitly flush the log buffer before exiting.  The original
+version of the file is available for reference in +demo.orig.c+:
+
+[diff]
+source~~~~
+--- demo/demo.orig.c    2009-08-03 08:57:44.000000000 -0700
++++ demo/demo.c 2009-07-25 23:23:38.000000000 -0700
+@@ -28,6 +28,9 @@
+ #include <stdlib.h>
+ #include <time.h>
+
++/* Include the following bitlog header file when using bitlog. */
++#include "../bitlog/bitlog.h"
++
+ /* Calculate the number of iterations required for number to satisfy the
+  * Collatz conjecture.  Returns either the number of iterations required
+  * or a -1 in the case of an error.  */
+@@ -62,10 +65,16 @@
+     int number;
+     int iterations;
+
++    /* Add the following call to initialize bitlog when using bitlog. */
++    bitlog_init(0);
++
+     srandom(time(0));
+     number = (int) (random() % 2048);
+     iterations = collatz_conjecture(number);
+     printf("%d requires %d iterations\n", number, iterations);
+
++    /* Add the following log buffer flush when using bitlog. */
++    bitlog_flush();
++
+     return 0;
+ }
+source~~~~
+
+After completing the above changes, program instrumentation is
+accomplished by calling +make+ with the special +lis+ target:
+
+----
+make lis
+----
+
+Additional details on instrumenting programs using LIS is available in
+the link:../manual/instrumentation.html[instrumentation guide].  The
+interfaces used by the +bitlog+ library are described in the
+link:../manual/bitlog.html[bitlog library documentation].
+
 
 Collecting runtime logs
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -87,9 +153,38 @@ analysis:
 Viewing logs
 ~~~~~~~~~~~~
 
-LIS includes a generic parser that is able to parse a wide collection of
-logs.  It takes as input a log file and the associated RLIS script.  It
-uses this information to parse the log and produce a formatted output of
-runtime tokens encountered in from the trace.
+The raw logs are printed by the +send_log.c+ can be parsed into a more
+readable form:
 
-TODO
+----
+$LISDIR/parser/tokenizeLog.py default.lis.rlis log.txt
+
+Dropped bits: 0
+collatz_conjecture \
+collatz_conjecture_branch_1 -1 collatz_conjecture_branch_2 -1 \
+collatz_conjecture_branch_5 -1 collatz_conjecture_branch_7 -1 \
+collatz_conjecture_branch_2 -1 collatz_conjecture_branch_4 -1 \
+collatz_conjecture_branch_7 -1 collatz_conjecture_branch_2 -1 ...
+----
+
+The +tokenizeLog.py+ utility takes as input a resolved LIS file that
+drove instrumentation and the runtime log file.  It uses this
+information to tokenize the log.  An alternate view of the log is
+obtained using +parseLog.py+ to print a human readable call trace of the
+log:
+
+----
+$LISDIR/parser/parseLog.py default.lis.rlis log.txt
+
+==== Trace for node 0 ====
+Dropped bits: 0
+0.000000   0: -- ENTRY --> collatz_conjecture
+0.000000   4:     Branch ID: 1 (of 9)
+0.000000  10:     Branch ID: 2 (of 9)
+0.000000  16:     Branch ID: 5 (of 9)
+0.000000  22:     Branch ID: 7 (of 9)
+...
+----
+
+Additional information on parsing is included in the
+link:../manual/parsing.html[parser manual].

@@ -8,8 +8,8 @@ SOURCES = demo.c
 OBJECTS = $(SOURCES:.c=.o)
 
 ####
-# Build rules
-####
+# Build Rules
+# ####
 
 all: demo
 
@@ -20,7 +20,7 @@ demo: $(OBJECTS)
 	$(CC) -c $(CFLAGS) $< -o $@
 
 ####
-# Clean up our mess...
+# Cleaning up
 ####
 
 clean:
