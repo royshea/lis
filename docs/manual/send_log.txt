@@ -1,0 +1,10 @@
+Implementation of send_log
+==========================
+
+This implementation of +send_log+ prints ASCII encoded hex dumps of logs
+from the +bitlog+ library to stderr.
+
+[c]
+source~~~~
+include::../code/send_log.c[]
+source~~~~

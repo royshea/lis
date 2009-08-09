@@ -14,7 +14,7 @@ OBJECTS = $(SOURCES:.c=.o)
 all: demo
 
 demo: $(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS) -o $@
+	$(CC) $(CFLAGS) $? -o $@
 
 .c.o:
 	$(CC) -c $(CFLAGS) $< -o $@
@@ -22,6 +22,7 @@ demo: $(OBJECTS)
 ####
 # Cleaning up
 ####
+
 clean:
 	rm -f *.o
 
@@ -29,7 +30,8 @@ spotless: clean
 	rm -f demo
 
 ####
-# Added for LIS
+# Special LIS target
 ####
+
 LISGOAL = demo_lis
 include Makefile.lis

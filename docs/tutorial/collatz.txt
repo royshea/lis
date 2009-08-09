@@ -1,0 +1,10 @@
+Collatz Conjecture
+==================
+
+Basic program that determines the number of iterations required for a
+randomly selected number to satisfy the Collatz conjecture.
+
+[c]
+source~~~~
+include::../code/demo.orig.c[]
+source~~~~

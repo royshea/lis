@@ -1,0 +1,95 @@
+Tutorial
+========
+
+
+LIS Work Flow Overview
+----------------------
+
+This tutorial walks through five stages of the normal LIS work flow.
+
+1. *LIS Script Composition*: In the first step the user writes a LIS
+   script or generates a LIS script using a higher level analysis.  This
+   script describes a specific logging task.  For more information on
+   the LIS scripting language specification take a look at the
+   link:../manual/language.html[language reference] and
+   link:../manual/scoping.html[token scoping rules].
+
+2. *Program Instrumentation*: The LIS instrumentation engine uses this
+   script to drive instrumentation of a user program and emits a new
+   instrumented copy of the source code.  For more information on
+   instrumenting programs, take a look at the
+   link:../manual/instrumentation.html[instrumentation guide].
+
+3. *Building the Instrumented Program*: The instrumented program
+   produced by the instrumentation engine is compiled.  If the original
+   program does not include logging support, then an external logging
+   library is linked into the instrumented program at compile time.
+
+4. *Executing the Program*: The built program is now ready to run.  Logs
+   produced from program execution can be collected for later analysis.
+
+5. *Log Parsing*: The LIS distribution includes a tokenizer that
+   tokenizes logs and a parser that pretty prints the stream of log
+   tokens.  The parsing framework is designed for capturing a broad
+   class of call traces and can be adapted to other logging tasks.  For
+   more information on parsing logs, take a look at
+   link:../manual/parsing.html[parsing LIS logs].
+
+
+Sample Program
+--------------
+
+The following sample program explores the
+http://en.wikipedia.org/wiki/Collatz_conjecture[Collatz conjecture].
+The source code for this program is located in +demo/demo.orig.c+ of the
+LIS distribution and via this link:collatz.html[code listing].
+
+
+LIS Script Composition
+~~~~~~~~~~~~~~~~~~~~~~
+
+The first step when using LIS is to determine what part of the program
+should be examined.  In this demo we will trace entry and exit from the
++main+ function, entry and exit from the +collatz+ function, and the
+actual control flow taken through +collatz+.  Following is the LIS
+script from +demo/default.lis+ that accomplishes this logging.
+
+----
+include::../code/default.lis[]
+----
+
+The script logs a globally unique token when either the +main+ or
++collatz+ function is entered.  This isolates where execution is within
+the program, so that the subsequent local control flow tokens and point
+return token can be tied back to a specific function.  The choice to use
+local and point tokens improves bandwidth efficacy at an increase in
+parsing complexity.
+
+
+Program Instrumentation
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+TODO
+
+Collecting runtime logs
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Collection of runtime logs is specific to the underlying log management
+software running on the system.  The LIS core includes a simple demo
+application that uses the included +send_log.c+ to print log data over
+standard error.  These logs can be redirected into a file for subsequent
+analysis:
+
+----
+./demo_lis 2> log.txt
+----
+
+Viewing logs
+~~~~~~~~~~~~
+
+LIS includes a generic parser that is able to parse a wide collection of
+logs.  It takes as input a log file and the associated RLIS script.  It
+uses this information to parse the log and produce a formatted output of
+runtime tokens encountered in from the trace.
+
+TODO

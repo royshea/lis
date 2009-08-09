@@ -1,0 +1,104 @@
+Bitlog Logging Library
+======================
+
+The +bitlog+ logging library manages binary aligned logs.  The system is
+designed for logging small values in a compact space.  The +bitlog+
+library provides a generic logging mechanism that has been successfully
+deployed on both time sensitive 8-bit embedded processors and more
+general desktop systems.
+
+The library provides three functions to manage startup, writing of logs,
+and flushing log buffers.  The library depends on a single external
+function to manage the log buffers coming out of +bitlog+.
+
+
+Bitlog API
+----------
+
+
+bitlog_init
+~~~~~~~~~~~
+
+[c]
+source~~~~
+/* Initialize the bit logging system. */
+void bitlog_init(uint16_t log_identifier);
+source~~~~
+
+The +bitlog_init+ function *MUST* be called before logging is enabled.
+Any calls to +bitlog_write+ made before calling +bitlog_init+ will
+silently fail.  This function initializes the logging system.  The
++bitlog_init+ will be included in all produced logs.  This can be used,
+for example, to keep keep track of logs from separate computers or
+processes
+
+
+bitlog_flush
+~~~~~~~~~~~~
+
+[c]
+source~~~~
+/* Flush the currently active Bitlog. */
+void bitlog_flush(void);
+source~~~~
+
+The +bitlog_flush+ library forces a flush of the current log buffer
+maintained by the +bitlog+ library.  This function is also called
+internally by the +bitlog_write_data+ function whenever the internal log
+buffer fills.  Flushing uses an externally defined +send_log+ (see below
+for details on +send_log+).
+
+
+bitlog_write
+~~~~~~~~~~~~
+
+[c]
+source~~~~
+/*
+ * Write data into log.
+ *
+ * It is assumed that data is right shifted.  I.e. if bit_width is 12,
+ * then the 20 most significant bits of data will be ignored.
+ */
+void bitlog_write_data(uint32_t bit_data, uint8_t bit_width);
+source~~~~
+
+
+The +bitlog_write+ function is used to log small (up to 32-bits) values
+into a buffer.  No delimiter is used within the buffer to distinguish
+the boundaries between data written to such a log.
+
+
+Handling Flushed Buffers
+------------------------
+
+When a log buffer fills or the +bitlog_flush+ function is explicitly
+called, the +bitlog+ library flushes the buffer by calling the
++send_log+ function.  Users of the +bitlog+ library *MUST* define a
+version of +send_log+ with the following prototype:
+
+[c]
+source~~~~
+/* Store, transfer, or print the log data with byte length len. */
+uint8_t send_log(void *data, uint8_t len);
+source~~~~
+
+An example of the +send_log+ function designed for use on desktop
+systems is included in the +demo/+ directory of the LIS distribution and
+can be viewed in this source link:send_log.html[listing of send_log].
+The +data+ passed to +send_log+ has the following format:
+
+[c]
+source~~~~
+/* Bitlog data packet.  A flushed packet may only be partially full, so
+ * num_valid_bits is used to track how much of bit_data actually
+ * contains data.
+ */
+typedef struct
+{
+    uint8_t num_valid_bits;
+    uint8_t sequence_number;
+    uint16_t source_addr;
+    uint8_t bit_data[BIT_DATA_BUFFER];
+} Bitlog;
+source~~~~

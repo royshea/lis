@@ -11,7 +11,7 @@ ifndef $(LISFILE)
 LISFILE = default.lis
 endif
 
-SOURCES += sendlog.c
+SOURCES += send_log.c
 PREPROCS = $(SOURCES:.c=.i)
 
 .PRECIOUS: %.lis.c
@@ -20,7 +20,7 @@ PREPROCS = $(SOURCES:.c=.i)
 	$(CPP) $(INCLUDES) $< -o $@
 
 $(LISGOAL).i: $(PREPROCS)
-	cat $? > $@
+	cat $^ > $@
 
 $(LISGOAL).c: $(LISGOAL).i
 	@echo "Be sure to inculed bitlog.h and link in the bitlog library"
@@ -37,4 +37,4 @@ lis: $(LISGOAL).o
 	$(CC) $(CFLAGS) $? $(LIBS) -o $(LISGOAL)
 
 lis_clean: clean
-	rm -f $(LISFILE).rlis $(LISGOAL).o $(LISGOAL).c *.i demo_lis
+	rm -f $(LISFILE).rlis $(LISGOAL).o $(LISGOAL).c *.i

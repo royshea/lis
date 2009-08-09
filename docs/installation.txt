@@ -1,0 +1,152 @@
+Installing LIS
+==============
+
+Prerequisites
+-------------
+
+These installation instructions assume a system with a basic build
+system for C and Ocaml.  For Ubuntu Linux distributions, this can be
+accomplished using:
+
+----
+sudo apt-get install TODO
+----
+
+Installation Script
+-------------------
+
+Installation is automated using the following installation script:
+
+link:install.sh[LIS Installation Script]
+
+The script requires that OCaml already be installed on the system.  The
+script automates:
+
+* Downloading CIL
+
+* Downloading LIS
+
+* Building three versions of CIL for the native (probably x86), avr, and
+msp430 processors
+
+* Building three versions of LIS for the native (probably x86), avr, and
+msp430 processors
+
+The installation script takes as input a base directory where you want
+CIL an LIS to be installed.  For example:
+
+----
+wget http://projects.nesl.ucla.edu/~rshea/lis/install.sh
+sh install.sh $HOME/local/lis
+----
+
+This will create +1.3.6-cil+ containing the CIL binaries, +lis-core+
+containing LIS, and +build.lis+ containing the downloaded source code
+and patched CIL source code.  The +build.lis+ directory can be safely
+removed when the install script completes.  If you run into any problems
+with the installation script please email mailto:royshea@gmail.com[Roy
+Shea].
+
+After installing LIS it is good to look over the
+link:tutorial/index.html[tutorial] and link:manual/index.html[user
+manual.]
+
+Manual Installation
+-------------------
+
+These instructions assume you are working from the +$LIS_INSTALL+
+directory.  You can set this environment variable in bash using:
+
+----
+export $LIS_INSTALL=/$HOME/local/lis
+----
+
+Obtain LIS and CIL
+~~~~~~~~~~~~~~~~~~
+
+Download the current version of LIS and the 1.3.6 version of CIL to
+the +$LIS_INSTALL+ directory.
+
+* link:install/lis-core.tgz[lis-core.tgz]
+* http://downloads.sourceforge.net/project/cil/cil/cil-1.3.6/cil-1.3.6.tar.gz[cil-1.3.6.tar.tgz]
+
+
+Build Patched Versions of CIL
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Create a directory to house the built CIL library.
+
+----
+mkdir $LIS_INSTALL/1.3.6-cil
+mkdir $LIS_INSTALL/1.3.6-cil/obj
+----
+
+Build CIL for the native system running on your computer.
+
+----
+cd $LIS_INSTALL
+tar -xzvf cil-1.3.6.tar.gz
+cp -r cil 1.3.6-targets-native
+cd 1.3.6-targets-native
+autoconf && ./configure && make
+cd $LIS_INSTALL
+cp -r 1.3.6-targets-native/obj/* 1.3.6-cil/obj/
+----
+
+If you intend to use LIS to instrument programs for the ATMega128
+processor, used on Mica2 / MicaZ motes and by embedded systems
+hobbyists, then build a copy of CIL patched for this processor.  This
+step is optional.
+
+----
+cd $LIS_INSTALL
+cp -r cil 1.3.6-targets-avr
+cd 1.3.6-targets-avr
+patch -p1 < $LIS_INSTALL/lis-core/install/cil-avr.diff
+autoconf && ./configure --target=$PLAT && make
+cd $LIS_INSTALL
+cp -r 1.3.6-targets-avr/obj/* 1.3.6-cil/obj/
+----
+
+If you intend to use LIS to instrument programs for the MSP430
+processor, used on TelosB motes and by a few embedded systems hobbyists,
+then build a copy of CIL patched for this processor.  This step is
+optional.
+
+----
+cd $LIS_INSTALL
+cp -r cil 1.3.6-targets-msp430
+cd 1.3.6-targets-msp430
+patch -p1 < $LIS_INSTALL/lis-core/install/cil-msp430.diff
+autoconf && ./configure --target=msp430 && make
+cd $LIS_INSTALL
+cp -r 1.3.6-targets-msp430/obj/* 1.3.6-cil/obj/
+----
+
+The +$LIS_INSTALL/1.3.6-cil+ directory now contains everything needed by
+LIS.  The original CIL code and patched build directories can be removed
+if desired.  This step is optional.
+
+----
+rm -rf $LIS_INSTALL/cil
+rm -rf $LIS_INSTALL/1.3.6-targets-native
+rm -rf $LIS_INSTALL/1.3.6-targets-avr     # If the AVR target was used
+rm -rf $LIS_INSTALL/1.3.6-targets-msp430  # If the MSP430 target was used
+----
+
+
+Build LIS
+~~~~~~~~~
+
+The LIS core handles instrumentation of C based source code.  This core
+uses CIL (built above) to help parse and instrument C.
+
+----
+CILPATH=$LIS_INSTALL/1.3.6-cil make -C $LIS_INSTALL/lis-core/lis
+----
+
+After installing LIS it is good to look over the
+link:tutorial/index.html[tutorial] and link:manual/index.html[user
+manual.]
+
+
