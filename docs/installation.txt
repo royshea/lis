@@ -67,7 +67,7 @@ Obtain LIS and CIL
 Download the current version of LIS and the 1.3.6 version of CIL to
 the +$LIS_INSTALL+ directory.
 
-* link:install/lis-core.tgz[lis-core.tgz]
+* link:lis-core.tgz[code/lis-core.tgz]
 * http://downloads.sourceforge.net/project/cil/cil/cil-1.3.6/cil-1.3.6.tar.gz[cil-1.3.6.tar.tgz]
 
 
