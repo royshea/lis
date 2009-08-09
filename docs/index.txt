@@ -9,7 +9,7 @@ Overview
 
 This documentation is a work in progress.  As of Aug. 2009 it is nearly
 complete, but a few holes do still exist.  Feel free to email
-mail:royshea@gmail.com[Roy Shea] if you need additional information or
+mailto:royshea@gmail.com[Roy Shea] if you need additional information or
 encounter any problems.
 
 The following lists the remaining documentation tasks:
