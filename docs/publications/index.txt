@@ -4,14 +4,23 @@ LIS Related Publications
 LIS Specific Papers and Presentations
 -------------------------------------
 
-TODO
+[bibliography]
 
-General Papers on Logging and Debugging in Wireless Embedded Systems
---------------------------------------------------------------------
+- Roy S Shea.  'Log Instrumentation Specifications and Low Overhead
+  Logging.'  CENS Technical Seminar.  July 2009.
+  link:shea09log.pdf[[PDF]]
 
-TODO
+- Roy Shea, Mani Srivastava, Young Cho. 'Optimizing Bandwidth of Call
+  Traces for Wireless Embedded Systems.'  IEEE Embedded Systems Letters
+  (submitted). June 2009. link:shea09optimization.pdf[[PDF]]
 
-Other Related Works
--------------------
 
-TODO
+// General Papers on Logging and Debugging in Wireless Embedded Systems
+// --------------------------------------------------------------------
+//
+// TODO
+//
+// Other Related Works
+// -------------------
+//
+// TODO
