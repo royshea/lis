@@ -56,16 +56,16 @@ endif
 ####
 # General build rule
 ####
-all: bc
+all: clean bc
 	@echo Done
 
 # NOTE: Change "bc" to "nc" to transition from byte-code (a little slow)
 # to native-code
 
-msp430: bc
+msp430: clean bc
 	@echo Done
 
-avr: bc
+avr: clean bc
 	@echo Done
 
 spotless: clean
