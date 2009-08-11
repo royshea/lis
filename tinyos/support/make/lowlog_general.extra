@@ -1,0 +1,21 @@
+#-*-Makefile-*- vim:syntax=make
+
+$(call TOSMake_include,lis_general.extra)
+
+ifndef LOG_PREFIX
+    LOG_PREFIX_LIST = "__empty_log_prefix_list__"
+else
+    LOG_PREFIX_LIST = $(LOG_PREFIX)
+endif
+
+LIS_FILE=$(BUILDDIR)/app.lis
+
+ll_roi: FORCE
+	@echo "Performing ROI identification using prefix list: $(LOG_PREFIX_LIST)..."
+	sh $(LIS)/roi/prefixBasedRoi.sh "$(LOG_PREFIX_LIST)" $(BUILDDIR)/roi.txt
+
+ll_analysis: FORCE
+	@echo "Analyzing program..."
+	sh $(LIS)/analysis/regionTracking.sh $(BUILDDIR)/app.i \
+		$(TARGET_PROCESSOR) $(BUILDDIR)/raw_calls.txt \
+		$(LIS_FILE) $(BUILDDIR)/roi.txt

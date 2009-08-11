@@ -1,0 +1,20 @@
+#-*-Makefile-*- vim:syntax=make
+
+$(call TOSMake_include,lis_general.extra)
+
+TARGET_PROCESSOR=avr
+POST_BUILD_EXTRA_DEPS += lis_build
+
+lis_build: lis_pre_size lis_prep lis_instrumentation lis_pre_build FORCE
+	@echo "Building instrumented binary..."
+	@echo "- Not that warnings of unused tmp__* variables are an okay and"
+	@echo "  expected side effect of the program instrumentation."
+	@echo
+	$(TARGET_PROCESSOR)-gcc \
+			-mmcu=atmega128 -Os $(BUILDDIR)/app.lis.c \
+			-L$(BITLOG_PATH) -lbitlog-$(TARGET_PROCESSOR) -o $(BUILDDIR)/lis.elf
+	cp $(BUILDDIR)/lis.elf $(BUILDDIR)/main.exe
+	$(OBJCOPY) --output-target=ihex $(MAIN_EXE) $(MAIN_IHEX)
+	@echo
+	@echo "Post-lis size is:"
+	@$(TARGET_PROCESSOR)-size -A $(MAIN_EXE)

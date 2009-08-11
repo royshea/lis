@@ -1,0 +1,22 @@
+#-*-Makefile-*- vim:syntax=make
+
+$(call TOSMake_include,lowlog_general.extra)
+
+TARGET_PROCESSOR=msp430
+POST_BUILD_EXTRA_DEPS += lowlog_build
+
+lowlog_build: lis_pre_size lis_prep ll_roi ll_analysis lis_instrumentation lis_pre_build FORCE
+	@echo "Building instrumented binary..."
+	@echo "- Not that warnings of unused tmp__* variables are an okay and"
+	@echo "  expected side effect of the program instrumentation."
+	@echo
+	$(TARGET_PROCESSOR)-gcc -specs=/usr/lib/ncc/tdspecs -g -o -Os -O -mdisable-hwmul \
+			-Wall -Wshadow $(BUILDDIR)/app.lis.c -lm -mmcu=$(TARGET_PROCESSOR)x1611 \
+			-L$(BITLOG_PATH) -lbitlog-$(TARGET_PROCESSOR) -o $(BUILDDIR)/lowlog.elf
+	cp $(BUILDDIR)/lowlog.elf $(BUILDDIR)/main.exe
+	$(OBJCOPY) --output-target=ihex $(MAIN_EXE) $(MAIN_IHEX)
+	@echo
+	@echo "Post-lowlog size is:"
+	@$(TARGET_PROCESSOR)-size -A $(MAIN_EXE)
+    
+
