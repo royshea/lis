@@ -25,29 +25,29 @@ get_tinyos ()
 insert_lis ()
 {
     # Basic environment setup
-    cp $LIS/lowlog_env_setup.sh $TOSROOT/
+    cp $LIS/tinyos/lowlog_env_setup.sh $TOSROOT/
 
     # Demo applications
-    cp -r $LIS/apps/MultihopLogTapRadioCountToLeds $TOSROOT/apps/
+    cp -r $LIS/tinyos/apps/MultihopLogTapRadioCountToLeds $TOSROOT/apps/
 
     # Build system
-    cp $LIS/support/make/lis_general.extra $TOSROOT/support/make/lis_general.extra
-    cp $LIS/support/make/lowlog_general.extra $TOSROOT/support/make/lowlog_general.extra
-    cp $LIS/support/make/lowlog_gid_general.extra $TOSROOT/support/make/lowlog_gid_general.extra
+    cp $LIS/tinyos/support/make/lis_general.extra $TOSROOT/support/make/lis_general.extra
+    cp $LIS/tinyos/support/make/lowlog_general.extra $TOSROOT/support/make/lowlog_general.extra
+    cp $LIS/tinyos/support/make/lowlog_gid_general.extra $TOSROOT/support/make/lowlog_gid_general.extra
     for PLAT in avr msp
     do
         mv $TOSROOT/support/make/$PLAT/$PLAT.rules $TOSROOT/support/make/$PLAT/$PLAT.rules.orig
-        cp $LIS/support/make/$PLAT/$PLAT.rules $TOSROOT/support/make/$PLAT/$PLAT.rules
-        cp $LIS/support/make/$PLAT/lis.extra $TOSROOT/support/make/$PLAT/lis.extra
-        cp $LIS/support/make/$PLAT/lowlog.extra $TOSROOT/support/make/$PLAT/lowlog.extra
-        cp $LIS/support/make/$PLAT/lowlog_gid.extra $TOSROOT/support/make/$PLAT/lowlog_gid.extra
+        cp $LIS/tinyos/support/make/$PLAT/$PLAT.rules $TOSROOT/support/make/$PLAT/$PLAT.rules
+        cp $LIS/tinyos/support/make/$PLAT/lis.extra $TOSROOT/support/make/$PLAT/lis.extra
+        cp $LIS/tinyos/support/make/$PLAT/lowlog.extra $TOSROOT/support/make/$PLAT/lowlog.extra
+        cp $LIS/tinyos/support/make/$PLAT/lowlog_gid.extra $TOSROOT/support/make/$PLAT/lowlog_gid.extra
     done
 
     # LIS TinyOS Component
-    cp -r $LIS/tos/lib/multihoplogtap $TOSROOT/tos/lib
+    cp -r $LIS/tinyos/tos/lib/multihoplogtap $TOSROOT/tos/lib
 
     # LIS Tool Suite
-    cp -r $LIS/support/utils $TOSROOT/support
+    cp -r $LIS/tinyos/support/utils $TOSROOT/support
 }
 
 
@@ -67,7 +67,6 @@ then
 else
     LIS=$1
     TOSROOT=$2
-    mkdir $2
 fi
 
 get_tinyos

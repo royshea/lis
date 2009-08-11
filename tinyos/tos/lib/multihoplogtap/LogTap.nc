@@ -42,6 +42,6 @@ interface LogTap {
      * this interface is already full trySend returns FAIL, else it will
      * return SUCCESS.
      */
-    command error_t send_log(void *data, uint8_t len);
+    command error_t sendLog(void *data, uint8_t len);
 }
 
