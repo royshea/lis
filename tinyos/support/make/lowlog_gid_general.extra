@@ -1,6 +1,6 @@
 #-*-Makefile-*- vim:syntax=make
 
-LIS=$(TOSROOT)/support/utils/lowlog
+TOS_LIS=$(TOSROOT)/support/utils/lowlog
 
 ifndef LOG_PREFIX
     LOG_PREFIX_LIST = "__empty_log_prefix_list__"
@@ -15,23 +15,23 @@ ll_pre_size: FORCE
 
 ll_prep: FORCE
 	@echo "Preping app.c for lowlog..."
-	@sh $(LIS)/nesc/nesc2c.sh $(BUILDDIR)/app.c $(TARGET_PROCESSOR)
+	@sh $(TOS_LIS)/nesc/nesc2c.sh $(BUILDDIR)/app.c $(TARGET_PROCESSOR)
 	@$(TARGET_PROCESSOR)-cpp $(BUILDDIR)/app.c.clean $(BUILDDIR)/app.i
 
 ll_roi: FORCE
 	@echo "Performing ROI identification using prefix list: $(LOG_PREFIX_LIST)..."
-	@sh $(LIS)/roi/prefixBasedRoi.sh $(BUILDDIR)/app.i "$(LOG_PREFIX_LIST)"
+	@cat "$(LOG_PREFIX_LIST)" > $(BUILDDIR)/roi.txt
 
 ll_analysis: FORCE
 	@echo "Analyzing program..."
-	@sh $(LIS)/analysis/globalRegionTracking.sh $(BUILDDIR)/app.i $(TARGET_PROCESSOR)
+	@sh $(LIS_PATH)/analysis/globalRegionTracking.sh $(BUILDDIR)/app.i $(TARGET_PROCESSOR)
 
 ll_instrumentation: FORCE
 	@echo "Instrumenting program..."
-	@sh $(LIS)/instrumentation/instrument.sh $(BUILDDIR)/app.i $(TARGET_PROCESSOR)
+	@sh $(TOS_LIS)/instrumentation/instrument.sh $(BUILDDIR)/app.i $(TARGET_PROCESSOR)
 
 ll_pre_build: FORCE
 	@echo "Preparing application for building..."
-	@bash $(LIS)/nesc/buildInstrumented.sh $(BUILDDIR)/app.holder.i $(TARGET_PROCESSOR)
+	@bash $(TOS_LIS)/nesc/buildInstrumented.sh $(BUILDDIR)/app.holder.i $(TARGET_PROCESSOR)
 	@sed -e s/ActiveMessageAddressC_addr/ActiveMessageAddressC\$$addr/g < \
 			$(BUILDDIR)/app.lowlog.i > $(BUILDDIR)/app.lowlog.c

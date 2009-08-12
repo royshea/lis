@@ -12,10 +12,10 @@ LIS_FILE=$(BUILDDIR)/app.lis
 
 ll_roi: FORCE
 	@echo "Performing ROI identification using prefix list: $(LOG_PREFIX_LIST)..."
-	sh $(LIS)/roi/prefixBasedRoi.sh "$(LOG_PREFIX_LIST)" $(BUILDDIR)/roi.txt
+	cat "$(LOG_PREFIX_LIST)" > $(BUILDDIR)/roi.txt
 
 ll_analysis: FORCE
 	@echo "Analyzing program..."
-	sh $(LIS)/analysis/regionTracking.sh $(BUILDDIR)/app.i \
+	sh $(LIS_PATH)/analysis/regionTracking.sh $(BUILDDIR)/app.i \
 		$(TARGET_PROCESSOR) $(BUILDDIR)/raw_calls.txt \
 		$(LIS_FILE) $(BUILDDIR)/roi.txt

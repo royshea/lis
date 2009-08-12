@@ -1,6 +1,6 @@
 #-*-Makefile-*- vim:syntax=make
 
-LIS=$(TOSROOT)/support/utils/lowlog
+TOS_LIS=$(TOSROOT)/support/utils/lowlog
 
 lis_pre_size: FORCE
 	@echo "Pre-lis size is:"
@@ -8,18 +8,18 @@ lis_pre_size: FORCE
 
 lis_prep: FORCE
 	@echo "Preping app.c for lis..."
-	sh $(LIS)/nesc/nesc2c.sh $(BUILDDIR)/app.c $(BUILDDIR)/app.clean.c
+	sh $(TOS_LIS)/nesc/nesc2c.sh $(BUILDDIR)/app.c $(BUILDDIR)/app.clean.c
 	$(TARGET_PROCESSOR)-cpp $(BUILDDIR)/app.clean.c $(BUILDDIR)/app.i
 
 lis_instrumentation: FORCE
 	@echo "Instrumenting program..."
-	sh $(LIS)/instrumentation/instrument.sh \
+	sh $(TOS_LIS)/instrumentation/instrument.sh \
 		$(BUILDDIR)/app.i $(BUILDDIR)/app.holder.i \
 		$(TARGET_PROCESSOR) $(LIS_FILE) 
 
 lis_pre_build: FORCE
 	@echo "Preparing application for building..."
-	bash $(LIS)/nesc/buildInstrumented.sh \
+	bash $(TOS_LIS)/nesc/buildInstrumented.sh \
 		$(BUILDDIR)/app.holder.i  $(BUILDDIR)/app.lis.c $(TARGET_PROCESSOR)
 
 #	sed -e s/ActiveMessageAddressC_addr/ActiveMessageAddressC\$$addr/g < \
