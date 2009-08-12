@@ -12,6 +12,7 @@ $ASCIIDOC_HTML -f ${LAYOUT}.conf -a iconsdir=./icons index.txt
 $ASCIIDOC_HTML -f ${LAYOUT}.conf -a iconsdir=./icons downloads.txt
 $ASCIIDOC_HTML -f ${LAYOUT}.conf -a iconsdir=./icons lis_tinyos.txt
 $ASCIIDOC_HTML -f ${LAYOUT}.conf -a iconsdir=./icons installation.txt
+$ASCIIDOC_HTML -f ${LAYOUT}.conf -a iconsdir=./icons todo.txt
 
 cd publications
 $ASCIIDOC_HTML -f ../${LAYOUT}.conf --a iconsdir=../icons -a styledir=.. index.txt
