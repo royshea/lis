@@ -109,6 +109,7 @@ build_cil ()
 build_lis ()
 {
     CILPATH=$BASE/1.3.6-cil make -C $BASE/lis-core/lis
+    make -C $BASE/lis-core/bitlog
 }
 
 
