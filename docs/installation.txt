@@ -38,7 +38,7 @@ CIL an LIS to be installed.  For example:
 
 ----
 wget http://projects.nesl.ucla.edu/~rshea/lis/code/install.sh
-sh install.sh $HOME/local/lis
+sh install.sh $HOME/lis
 ----
 
 This will create +1.3.6-cil+ containing the CIL binaries, +lis-core+
