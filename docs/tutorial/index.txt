@@ -128,7 +128,7 @@ After completing the above changes, program instrumentation is
 accomplished by calling +make+ with the special +lis+ target:
 
 ----
-make lis
+LIS_PATH=$HOME/lis/lis-core make lis
 ----
 
 Additional details on instrumenting programs using LIS is available in

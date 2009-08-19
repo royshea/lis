@@ -1,7 +1,10 @@
 # Author: Roy Shea (royshea@gmail.com)
 # Date:  6/1/09
 
-LIS_PATH = /home/rshea/git/lis-core
+# Ensure the correct enviornment exists
+ifndef LIS_PATH
+$(error Must set envioronment LIS_PATH to point to the root of your LIS installation.  This is probably something like $$HOME/lis/lis-core)
+endif
 
 LIS = $(LIS_PATH)/lis/x86-lis
 INCLUDES += -I $(LIS_PATH)/bitlog
