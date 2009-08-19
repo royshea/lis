@@ -39,7 +39,7 @@ uint8_t send_log(void *data, uint8_t len)
 
     /* Print time stamp */
     gettimeofday(&tv, NULL);
-    fprintf(stderr, "%d.%d", (int)tv.tv_sec, (int)tv.tv_usec);
+    fprintf(stderr, "%d.%06d", (int)tv.tv_sec, (int)tv.tv_usec);
 
     /* Print log */
     log = (char *) data;
