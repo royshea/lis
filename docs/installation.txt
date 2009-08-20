@@ -18,7 +18,7 @@ Installation Script
 
 Installation is automated using the following installation script:
 
-link:install.sh[LIS Installation Script]
+link:code/install.sh[LIS Installation Script]
 
 The script requires that OCaml already be installed on the system.  The
 script automates:
@@ -37,8 +37,8 @@ The installation script takes as input a base directory where you want
 CIL an LIS to be installed.  For example:
 
 ----
-wget http://projects.nesl.ucla.edu/~rshea/lis/install.sh
-sh install.sh $HOME/local/lis
+wget http://projects.nesl.ucla.edu/~rshea/lis/code/install.sh
+sh install.sh $HOME/lis
 ----
 
 This will create +1.3.6-cil+ containing the CIL binaries, +lis-core+

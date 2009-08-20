@@ -29,9 +29,10 @@ get_file ()
     wget -c --read-timeout=120 --retry-connrefused "$3" "$1"
     file=`basename $1`
     check_sum=`sha1sum < $file | sed 's/ .*//'`
-    if [ "$check_sum"x != "$2"x ]
+    if [ "$2"x != x -a "$check_sum"x != "$2"x ]
     then
-       die "sha1sum mismatch!  Rename $file and try again."
+       echo "sha1sum mismatch!  Rename $file and try again."
+       exit 1
     fi
     cd -
 }
@@ -42,7 +43,7 @@ get_file ()
 get_lis ()
 {
     cd $BASE
-    get_file $PROJECTS/~rshea/lis/lis-core.tgz c9e1f5761d650f3631dc734180d7b70fdf300d82 "--no-check-certificate"
+    get_file $PROJECTS/~rshea/lis/code/lis-core.tgz "" "--no-check-certificate"
     tar -xzvf lis-core.tgz
     mv lis-core.tgz build.lis
     cd -
@@ -108,6 +109,7 @@ build_cil ()
 build_lis ()
 {
     CILPATH=$BASE/1.3.6-cil make -C $BASE/lis-core/lis
+    make -C $BASE/lis-core/bitlog
 }
 
 

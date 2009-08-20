@@ -39,4 +39,6 @@ cp ../demo/default.lis code/
 cp ../demo/demo.c code/
 cp ../demo/demo.orig.c code/
 cp ../demo/send_log.c code/
-git archive --format=tar --prefix=lis-core/ HEAD | gzip > code/lis-core.tgz
+cd ..
+git archive --format=tar --prefix=lis-core/ HEAD | gzip > docs/code/lis-core.tgz
+cd docs
