@@ -1,0 +1,16 @@
+TODO
+====
+
+This documentation is a work in progress.  As of Aug. 2009 it is nearly
+complete, but a few holes do still exist.  Feel free to email
+mailto:royshea@gmail.com[Roy Shea] if you need additional information or
+encounter any problems.
+
+The following lists the remaining documentation tasks:
+
+* Expand description of the LIS parser
+
+* Add description of the LowLog analysis
+
+* Cleanup TinyOS documentation with walk through of gathering logs and
+log tap
