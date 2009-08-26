@@ -552,6 +552,23 @@ let applyLis lisData rlisChannel outChannel oneRet fileName =
 ;;
 
 
+
+(* Load a machine model using the CIL_MACHINE enviornment variable. *)
+let loadEnv _ =
+  let _ =
+    try
+      let machineModel = Sys.getenv "CIL_MACHINE" in
+        Cil.envMachine := Some (Machdepenv.modelParse machineModel);
+    with
+        Not_found ->
+          ignore (Errormsg.error "CIL_MACHINE environment variable is not set")
+      | Failure msg ->
+          ignore (Errormsg.error "CIL_MACHINE machine model is invalid: %s" msg)
+  in
+    ()
+;;
+
+
 (* Entry point to LIS driven transformation.  Handles command line before
  * passing execution onto applyLis. *)
 let mainFunction () =
@@ -573,6 +590,7 @@ let mainFunction () =
     ("--rlis", Arg.Set_string outRlisFile, "Name file to write resolved LIS to");
     ("--out", Arg.Set_string outFile, "Name of the output CIL file");
     ("--oneret", Arg.Set oneRet, "Use CIL's one return transformation");
+    ("--envmachine", Arg.Unit loadEnv, "Specify machine model using CIL_MACHINE environment variable");
   ] in
 
   let _ = Arg.parse argDescr recordFile usageMsg in
