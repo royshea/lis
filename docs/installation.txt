@@ -27,26 +27,21 @@ script automates:
 
 * Downloading LIS
 
-* Building three versions of CIL for the native (probably x86), avr, and
-msp430 processors
+* Building CIL
 
-* Building three versions of LIS for the native (probably x86), avr, and
-msp430 processors
+* Building LIS
 
-The installation script takes as input a base directory where you want
-CIL an LIS to be installed.  For example:
+The installation script takes as input the directory where you want LIS
+to be installed.  For example:
 
 ----
 wget http://projects.nesl.ucla.edu/~rshea/lis/code/install.sh
-sh install.sh $HOME/lis
+sh install.sh $HOME/lis-core
 ----
 
-This will create +1.3.6-cil+ containing the CIL binaries, +lis-core+
-containing LIS, and +build.lis+ containing the downloaded source code
-and patched CIL source code.  The +build.lis+ directory can be safely
-removed when the install script completes.  If you run into any problems
-with the installation script please email mailto:royshea@gmail.com[Roy
-Shea].
+This will create the +lis-core+ directory that includes a full CIL
+installation and the LIS framework.  If you run into any problems with
+the installation script please email mailto:royshea@gmail.com[Roy Shea].
 
 After installing LIS it is good to look over the
 link:tutorial/index.html[tutorial] and link:manual/index.html[user
@@ -55,85 +50,40 @@ manual.]
 Manual Installation
 -------------------
 
-These instructions assume you are working from the +$LIS_INSTALL+
+These instructions assume you are working from the +$LISDIR+
 directory.  You can set this environment variable in bash using:
 
 ----
-export $LIS_INSTALL=/$HOME/local/lis
+export $LISDIR=/$HOME/local/lis
 ----
 
 Obtain LIS and CIL
 ~~~~~~~~~~~~~~~~~~
 
 Download the current version of LIS and the 1.3.6 version of CIL to
-the +$LIS_INSTALL+ directory.
+the +$LISDIR+ directory.
 
 * link:lis-core.tgz[code/lis-core.tgz]
-* http://downloads.sourceforge.net/project/cil/cil/cil-1.3.6/cil-1.3.6.tar.gz[cil-1.3.6.tar.tgz]
+* http://downloads.sourceforge.net/project/cil/cil/cil-1.3.7/cil-1.3.7.tar.gz[cil-1.3.7.tar.tgz]
 
 
-Build Patched Versions of CIL
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Create a directory to house the built CIL library.
-
-----
-mkdir $LIS_INSTALL/1.3.6-cil
-mkdir $LIS_INSTALL/1.3.6-cil/obj
-----
+Build CIL
+~~~~~~~~~
 
 Build CIL for the native system running on your computer.
 
 ----
-cd $LIS_INSTALL
-tar -xzvf cil-1.3.6.tar.gz
-cp -r cil 1.3.6-targets-native
-cd 1.3.6-targets-native
+cd $LISDIR
+tar -xzvf cil-1.3.7.tar.gz
+cd cil-1.3.7
 autoconf && ./configure && make
-cd $LIS_INSTALL
-cp -r 1.3.6-targets-native/obj/* 1.3.6-cil/obj/
+cd $LISDIR
 ----
 
-If you intend to use LIS to instrument programs for the ATMega128
-processor, used on Mica2 / MicaZ motes and by embedded systems
-hobbyists, then build a copy of CIL patched for this processor.  This
-step is optional.
-
-----
-cd $LIS_INSTALL
-cp -r cil 1.3.6-targets-avr
-cd 1.3.6-targets-avr
-patch -p1 < $LIS_INSTALL/lis-core/install/cil-avr.diff
-autoconf && ./configure --target=$PLAT && make
-cd $LIS_INSTALL
-cp -r 1.3.6-targets-avr/obj/* 1.3.6-cil/obj/
-----
-
-If you intend to use LIS to instrument programs for the MSP430
-processor, used on TelosB motes and by a few embedded systems hobbyists,
-then build a copy of CIL patched for this processor.  This step is
-optional.
-
-----
-cd $LIS_INSTALL
-cp -r cil 1.3.6-targets-msp430
-cd 1.3.6-targets-msp430
-patch -p1 < $LIS_INSTALL/lis-core/install/cil-msp430.diff
-autoconf && ./configure --target=msp430 && make
-cd $LIS_INSTALL
-cp -r 1.3.6-targets-msp430/obj/* 1.3.6-cil/obj/
-----
-
-The +$LIS_INSTALL/1.3.6-cil+ directory now contains everything needed by
-LIS.  The original CIL code and patched build directories can be removed
-if desired.  This step is optional.
-
-----
-rm -rf $LIS_INSTALL/cil
-rm -rf $LIS_INSTALL/1.3.6-targets-native
-rm -rf $LIS_INSTALL/1.3.6-targets-avr     # If the AVR target was used
-rm -rf $LIS_INSTALL/1.3.6-targets-msp430  # If the MSP430 target was used
-----
+Note that by using the +CIL_MACHINE+, is described in
+link:lis_tos.html[LIS and TinyOS] documentation, this version of CIL can
+target a wide range of processors including the AVR and MSP430 embedded
+processors.
 
 
 Build LIS
@@ -143,11 +93,10 @@ The LIS core handles instrumentation of C based source code.  This core
 uses CIL (built above) to help parse and instrument C.
 
 ----
-CILPATH=$LIS_INSTALL/1.3.6-cil make -C $LIS_INSTALL/lis-core/lis
+CILPATH=$LISDIR/cil-1.3.7 make -C $LISDIR/lis
+make -C $LISDIR/bitlog
 ----
 
 After installing LIS it is good to look over the
 link:tutorial/index.html[tutorial] and link:manual/index.html[user
 manual.]
-
-

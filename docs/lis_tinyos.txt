@@ -23,12 +23,12 @@ Installation
 
 Begin by installing LIS using the general
 link:installation.html[installation instructions].  Navigate to
-+$LIS_PATH/tinyos/support/utils/lowlog+ and execute the installation
++$LISDIR/tinyos/support/utils/lowlog+ and execute the installation
 script:
 
 ----
-cd $LIS_PATH/tinyos/support/utils/lowlog
-sh install_tos.sh $LIS_PATH $HOME/tinyos-2.1.0
+cd $LISDIR/tinyos/support/utils/lowlog
+sh install_tos.sh $LISDIR $HOME/tinyos-2.1.0
 ----
 
 The TinyOS support can be accessed via one of two modes: directly via
