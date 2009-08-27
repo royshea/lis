@@ -51,7 +51,7 @@ get_lis ()
     cd $LISDIR
     get_file $PROJECTS/~rshea/lis/code/lis-core.tgz "" "--no-check-certificate"
     tar -xzvf lis-core.tgz
-    mv lis-core.tgz lis-core/tarballs/
+    mv lis-core.tgz tarballs/
     mv lis-core/* .
     rmdir lis-core
     cd -
@@ -87,7 +87,7 @@ build_cil ()
 ####
 build_lis ()
 {
-    CILPATH=$LISDIR/$CIL-cil -C $LISDIR/lis
+    CILPATH=$LISDIR/$CIL make -C $LISDIR/lis
     make -C $LISDIR/bitlog
 }
 
@@ -107,10 +107,9 @@ then
     echo "Aborting.  Directory already exists."
     exit
 else
-then
-    LISDIR=$1
+   LISDIR=$1
     mkdir -p $LISDIR
-    mkdir $LISDIR/tarbals
+    mkdir $LISDIR/tarballs
 fi
 
 # Obtain LIS
