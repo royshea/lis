@@ -19,22 +19,28 @@ set -o errexit
 
 SOURCEFORGE=http://downloads.sourceforge.net
 PROJECTS=http://projects.nesl.ucla.edu
+CIL=cil-1.3.7
 
 ####
 # Download a file
 ####
 get_file ()
 {
-    cd $BASE
+    if [ -x "`which sha1sum`" ]
+    then
+       SHA1SUM="sha1sum"
+    else
+       SHA1SUM="openssl dgst -sha1"
+    fi
+
     wget -c --read-timeout=120 --retry-connrefused "$3" "$1"
     file=`basename $1`
-    check_sum=`sha1sum < $file | sed 's/ .*//'`
+    check_sum=`$SHA1SUM < $file | sed 's/ .*//'`
     if [ "$2"x != x -a "$check_sum"x != "$2"x ]
     then
        echo "sha1sum mismatch!  Rename $file and try again."
        exit 1
     fi
-    cd -
 }
 
 ####
@@ -42,10 +48,12 @@ get_file ()
 ####
 get_lis ()
 {
-    cd $BASE
+    cd $LISDIR
     get_file $PROJECTS/~rshea/lis/code/lis-core.tgz "" "--no-check-certificate"
     tar -xzvf lis-core.tgz
-    mv lis-core.tgz build.lis
+    mv lis-core.tgz lis-core/tarballs/
+    mv lis-core/* .
+    rmdir lis-core
     cd -
 }
 
@@ -55,51 +63,22 @@ get_lis ()
 ####
 get_cil ()
 {
-    cd $BASE
-    get_file $SOURCEFORGE/project/cil/cil/cil-1.3.6/cil-1.3.6.tar.gz b57b08fad26b54a85e63c0fb6ded7858376939e2 ""
-    tar -xzvf cil-1.3.6.tar.gz
-    mv cil-1.3.6.tar.gz build.lis
+    cd $LISDIR
+    get_file $SOURCEFORGE/project/cil/cil/$CIL/$CIL.tar.gz c42a561beb32c4858dca02a2da943681a63d30bd ""
+    tar -xzvf $CIL.tar.gz
+    mv $CIL.tar.gz tarballs/
     cd -
 }
 
 
 ####
-# Setup and build architecture specific versions of CIL sources
+# Setup and build CIL
 ####
 build_cil ()
 {
-    # Setup source for different targets
-    cp -r cil 1.3.6-targets-native
-
-    for PLAT in avr msp430
-    do
-        cp -r cil 1.3.6-targets-$PLAT
-        cd $BASE/1.3.6-targets-$PLAT
-        patch -p1 < $BASE/lis-core/install/cil-$PLAT.diff
-        cd -
-    done
-    mv cil build.lis
-
-    # Build source for different targets
-    cd $BASE/1.3.6-targets-native
+    cd $LISDIR/$CIL
     autoconf && ./configure && make
     cd -
-
-    for PLAT in avr msp430
-    do
-        cd $BASE/1.3.6-targets-$PLAT
-        autoconf && ./configure --target=$PLAT && make
-        cd -
-    done
-
-    # Put built binaries in one location
-    mkdir $BASE/1.3.6-cil
-    mkdir $BASE/1.3.6-cil/obj
-    for TARGET in avr msp430 native
-    do
-        cp -r $BASE/1.3.6-targets-$TARGET/obj/* $BASE/1.3.6-cil/obj/
-        mv $BASE/1.3.6-targets-$TARGET $BASE/build.lis
-    done
 }
 
 
@@ -108,8 +87,8 @@ build_cil ()
 ####
 build_lis ()
 {
-    CILPATH=$BASE/1.3.6-cil make -C $BASE/lis-core/lis
-    make -C $BASE/lis-core/bitlog
+    CILPATH=$LISDIR/$CIL-cil -C $LISDIR/lis
+    make -C $LISDIR/bitlog
 }
 
 
@@ -123,11 +102,15 @@ if [ $# -ne 1 ]
 then
     echo "Must specify target install directory"
     exit
+elif [ -e $1 ]
+then
+    echo "Aborting.  Directory already exists."
+    exit
 else
-    cd $1
-    BASE=`pwd`
-    mkdir build.lis
-    cd -
+then
+    LISDIR=$1
+    mkdir -p $LISDIR
+    mkdir $LISDIR/tarbals
 fi
 
 # Obtain LIS
