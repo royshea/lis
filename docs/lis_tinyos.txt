@@ -40,13 +40,11 @@ call trace generation.
 cd apps/MultihopLogTapRadioCountToLeds
 
 # Generate image instrumented based on the "health_no_crc.lis" script
-BITLOG_PATH=/home/rshea/git/lis-core/bitlog \
-    CPATH=/home/rshea/git/lis-core/bitlog \
+LIS_PATH=$LISDIR CPATH=$LIS_PATH/bitlog \
     LIS_FILE=crc.lis make telosb lis
 
 # Generate image that gathers call traces through the LedsP and
 # CtpRoutingEngineP TinyOS components.
-BITLOG_PATH=/home/rshea/git/lis-core/bitlog \
-    CPATH=/home/rshea/git/lis-core/bitlog \
+LIS_PATH=$LISDIR CPATH=$LIS_PATH/bitlog \
     LOG_PREFIX="LedsP CtpRoutingEngineP" make telosb lowlog
 ----
