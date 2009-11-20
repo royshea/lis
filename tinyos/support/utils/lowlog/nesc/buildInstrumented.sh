@@ -15,7 +15,7 @@ sed -e 's/extern void HOLDER_FUNC(char const   \*msg ) ;/#include "bitlog.h"/' <
 sed -e 's/HOLDER_FUNC("\(.*\) \(.*\)");/bitlog_write_data(\1, \2);/' < $IN_FILE.include > $IN_FILE.bitlog
 
 # Shuffle :-/
-$TARGET-cpp -I$BITLOG_PATH $IN_FILE.bitlog $IN_FILE.bitlog.i
+$TARGET-cpp -I$LIS_PATH/bitlog $IN_FILE.bitlog $IN_FILE.bitlog.i
 rm $IN_FILE.include $IN_FILE.bitlog
 
 # Expose functions used by the logging library and then insert logging library.

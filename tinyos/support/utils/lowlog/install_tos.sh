@@ -52,6 +52,18 @@ insert_lis ()
 
 
 ####
+# Cross-compile the bitlog library
+####
+build_bitlog ()
+{
+    make -C $LIS/bitlog clean
+    make -C $LIS/bitlog avr
+    make -C $LIS/bitlog clean
+    make -C $LIS/bitlog msp430
+    make -C $LIS/bitlog clean
+}
+
+####
 # Core of the instalation
 ####
 

@@ -12,7 +12,7 @@ LIS_FILE=$(BUILDDIR)/app.lis
 
 ll_roi: FORCE
 	@echo "Performing ROI identification using prefix list: $(LOG_PREFIX_LIST)..."
-	cat "$(LOG_PREFIX_LIST)" > $(BUILDDIR)/roi.txt
+	echo "$(LOG_PREFIX_LIST)" > $(BUILDDIR)/roi.txt
 
 ll_analysis: FORCE
 	@echo "Analyzing program..."

@@ -12,7 +12,7 @@ lowlog_build: ll_pre_size ll_prep ll_roi ll_analysis ll_instrumentation ll_pre_b
 	@echo
 	$(TARGET_PROCESSOR)-gcc \
 			-mmcu=atmega128 -Os $(BUILDDIR)/app.lowlog.c \
-			-L$(BITLOG_PATH) -lbitlog-$(TARGET_PROCESSOR) -o $(BUILDDIR)/lowlog.elf
+			-L$(LIS_PATH/bitlog) -lbitlog-$(TARGET_PROCESSOR) -o $(BUILDDIR)/lowlog.elf
 	cp $(BUILDDIR)/lowlog.elf $(BUILDDIR)/main.exe
 	$(OBJCOPY) --output-target=ihex $(MAIN_EXE) $(MAIN_IHEX)
 	@echo

@@ -1,3 +1,3 @@
 #!/bin/sh
 
-CIL_MACHINE="bool=1,1 short=2,1 int=2,1 long=4,1 long_long=8,1 float=4,1 double=4,1 long_double=4,1 pointer=2,1 enum=2,1 fun=1,1 alignof_string=1 max_alignment=1 size_t=unsigned_int wchar_t=unsigned_int char_signed=true big_endian=false const_string_literals=true __thread_is_keyword=false __builtin_va_list=true underscore_name=true" /home/rshea/git/lis-core/lis/lis --envmachine $*
+CIL_MACHINE="bool=1,1 short=2,1 int=2,1 long=4,1 long_long=8,1 float=4,1 double=4,1 long_double=4,1 void=1 pointer=2,1 enum=2,1 fun=1,1 alignof_string=1 max_alignment=1 size_t=unsigned_int wchar_t=unsigned_int char_signed=true big_endian=false const_string_literals=true __thread_is_keyword=false __builtin_va_list=true underscore_name=true" `dirname $0`/lis --envmachine $*
