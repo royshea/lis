@@ -1,8 +1,6 @@
 LIS and TinyOS
 ==============
-
-Integration into TinyOS
------------------------
+Roy Shea <royshea@gmail.com>
 
 LIS was specifically developed for collecting data from resource
 constrained wireless embedded systems.  We have provided full
@@ -18,18 +16,48 @@ provides:
 * Single-hop log delivery using the +AMSend+ interface
 
 
+The rest of this document describes the installation of LowLog and
+briefly introduces how to begin using it to obtain logs from interesting
+regions of your own projects.
+
+
 Installation
 ------------
 
 Begin by installing LIS using the general
 link:installation.html[installation instructions].  Navigate to
-+$LISDIR/tinyos/support/utils/lowlog+ and execute the installation
-script:
++$LISDIR/install+ and execute the installation script.  The installation
+script takes two parameters to describe where the root of the LIS
+installation is located and where the TinyOS repository should be
+installed:
 
 ----
-cd $LISDIR/tinyos/support/utils/lowlog
+cd $LISDIR/install/
 sh install_tos.sh $LISDIR $HOME/tinyos-2.1.0
 ----
+
+This script downloads the 2.1.0 version of TinyOS using CVS, inserts LIS
+into the aquired TinyOS distribution, and build the +bitlog+ library for
+the AVR and MSP430 targets.  This last step assumes the presense of the
++avr-gcc+ and +msp430-gcc+.
+
+
+Preparing to Use LIS
+--------------------
+
+After installing TinyOS with all LIS you will need to set up your TinyOS build
+environment for the freshly installed version of TinyOS located in
+`tinyos-2.x-git`.  You can do this by hand or by executing:
+
+----
+. lowlog_setup.sh
+----
+
+from the base TinyOS directory created during installation.
+
+
+Build the Demonstration Application with Logging from LIS
+---------------------------------------------------------
 
 The TinyOS support can be accessed via one of two modes: directly via
 LIS scripts or using a higher level analysis that implements optimized
@@ -39,12 +67,126 @@ call trace generation.
 # Move into demo directory
 cd apps/MultihopLogTapRadioCountToLeds
 
-# Generate image instrumented based on the "health_no_crc.lis" script
+# Generate image instrumented based on the "crc.lis" script
 LIS_PATH=$LISDIR CPATH=$LIS_PATH/bitlog \
     LIS_FILE=crc.lis make telosb lis
+
+make telosb reinstall,2
+-----
+
+
+----
+# Move into demo directory
+cd apps/MultihopLogTapRadioCountToLeds
 
 # Generate image that gathers call traces through the LedsP and
 # CtpRoutingEngineP TinyOS components.
 LIS_PATH=$LISDIR CPATH=$LIS_PATH/bitlog \
     LOG_PREFIX="LedsP CtpRoutingEngineP" make telosb lowlog
+
+make telosb reinstall,2
 ----
+
+
+Gather and Examine Traces
+-------------------------
+
+This requires that the +MultihopLogTapRadioCountToLeds+ node programmed
+and running as described above, and that a TinyOS +BaseStation+ node be
+connected to the computer to pass data on to the serial forwarder.
+
+In the first terminal start the serial forwarder on the PC:
+
+----
+$TOSROOT/support/sdk/c/sf/sf 9002 /dev/ttyUSB0 115200
+----
+
+In the second terminal start the timestamped listen utility that prints
+hex dumps of packets along with timestamps:
+
+----
+$TOSROOT/support/utils/lowlog/listener/timestampedlisten localhost 9002 | tee trace.txt
+----
+
+In the second terminal you should see a combination of short count
+packets (about each second) and longer LowLog packets (about once a
+second).  After a few seconds you can stop the programs in both
+terminals.  To view the trace use the listener:
+
+----
+export LOG_DIR=$TOSROOT/apps/LogTapRadioCountToLeds/build/telosb
+$LISDIR/parser/parseLog.py -t trace.txt \
+        -e $LOG_DIR/enum_entry_point_functions.txt \
+        -b $LOG_DIR/enum_calls_in_roi.txt \
+        -r $LOG_DIR/roi.txt
+----
+
+
+More Detailed Look at Using LIS with TinyOS
+-------------------------------------------
+
+
+Wiring LogTapC or MultihopLogTapC into the Program
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+LowLog enabled applications need to include a component implementing the
++LogTap+ interface.  Such a component handles logs once they have been
+flushed out of the +bitlog+ library.  We have implemented two components
+in TinyOS: +LogTapC+ and +MultihopLogTapC+.  The first dumps logs
+directly to the UART and the latter multihops logs out of the network
+using CTP.
+
+An example of wiring +LogTapC+ into an application is provided in
++$TOSDIR/apps/LogTapBlink/BlinkAppC.nc+.  An example of wiring
++MultihopLogTapC+ into an application is provided in
++$TOSDIR/apps/MultihopLogTapRadioCountToLeds/MultihopLogTapRadioCountToLedsAppC.nc+.
+
+The +Makefile+ must also be extended to include to include an updated
++PFLAGS+ and +CFLAGS+.  For example, the +Makefile+ for for
++MultihopLogTapRadioCountToLedsApp+:
+
+----
+COMPONENT=MultihopLogTapRadioCountToLedsAppC
+
+CFLAGS += -I$(TOSDIR)/lib/net/ -I$(TOSDIR)/lib/net/ctp  -I$(TOSDIR)/lib/net/4bitle
+
+PFLAGS += -I$(TOSDIR)/lib/multihoplogtap -I$(TOSDIR)/../apps/RadioCountToLeds
+
+include $(MAKERULES)
+----
+
+
+Specifying a Region of Interest (ROI)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Logging is only performed in a specified region of interest (ROI).  The
+ROI is specified by a list of function prefixes.  Any function that
+begins with any of the specified prefixes will be included in the ROI
+that is instrumented by LowLog.
+
+Prefix matching is will suited to TinyOS programs where name mangling,
+used by NesC, results in function names of the form:
+
+----
+<ComponentName>$<InterfaceName>$<FunctionName>
+----
+
+Note that LowLog replaces these dollar signs with underscores.  We could
+enable logging in any of the LED related functions using the prefix
+`LedsP_Leds`, since the LED functionality is implemented in the `LedsP`
+component and accessed via the `Leds` interface.  You can specify more
+than one prefix by separating them with spaces.  For example:
+
+----
+LOG_PREFIX="RadioCountToLedsC LedsP_Leds" make telosb lowlog
+----
+
+enables tracing in all functions implemented directly by the
+`RadioCountToLedsC` component and all `LedsP` related functions using
+the `Leds` interface.
+
+If you are unfamiliar with NesC name mangling or unsure of what
+component or interface is of interest in a program you want gather logs
+from, take a look at the `app.c` file (located in the `build/<target>`
+directory after making an application) generated by NesC during normal
+compilation.
