@@ -35,6 +35,7 @@ cd ..
 
 # Set up files used by documentation
 cp ../install/install.sh code/
+cp ../install/install_tos.sh code/
 cp ../demo/default.lis code/
 cp ../demo/demo.c code/
 cp ../demo/demo.orig.c code/
