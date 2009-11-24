@@ -2,13 +2,13 @@
 # Date:  6/1/09
 
 # Ensure the correct enviornment exists
-ifndef LIS_PATH
-$(error Must set envioronment LIS_PATH to point to the root of your LIS installation.  This is probably something like $$HOME/lis/lis-core)
+ifndef LISDIR
+$(error Must set envioronment LISDIR to point to the root of your LIS installation.  This is probably something like $$HOME/lis/lis-core)
 endif
 
-LIS = $(LIS_PATH)/lis/x86-lis
-INCLUDES += -I $(LIS_PATH)/bitlog
-LIBS += -L $(LIS_PATH)/bitlog -l bitlog
+LIS = $(LISDIR)/lis/lis
+INCLUDES += -I $(LISDIR)/bitlog
+LIBS += -L $(LISDIR)/bitlog -l bitlog
 
 ifndef $(LISFILE)
 LISFILE = default.lis
