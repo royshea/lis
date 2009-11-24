@@ -6,13 +6,17 @@ LIS Specific Papers and Presentations
 
 [bibliography]
 
+- Roy Shea, Mani Srivastava, Young Cho. 'Scoped Identifiers for
+  Efficient Bit Aligned Logging.' Design, Automation and Test in Europe.
+  March 2010.  To appear.
+
 - Roy S Shea.  'Log Instrumentation Specifications and Low Overhead
   Logging.'  CENS Technical Seminar.  July 2009.
   link:shea09log.pdf[[PDF]]
 
 - Roy Shea, Mani Srivastava, Young Cho. 'Optimizing Bandwidth of Call
-  Traces for Wireless Embedded Systems.'  IEEE Embedded Systems Letters
-  (submitted). June 2009. link:shea09optimization.pdf[[PDF]]
+  Traces for Wireless Embedded Systems.'  IEEE Embedded Systems Letters.
+  May 2009. link:shea09optimization.pdf[[PDF]]
 
 
 // General Papers on Logging and Debugging in Wireless Embedded Systems
