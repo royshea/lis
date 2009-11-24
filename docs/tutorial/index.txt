@@ -89,7 +89,8 @@ The LIS specific +Makefile.lis+ is placed within the +demo+ project
 directory.  Finally, the +demo.c+ program has also been extended to
 include the +bitlog+ logging library header file, initialize the logger,
 and explicitly flush the log buffer before exiting.  The original
-version of the file is available for reference in +demo.orig.c+:
+version of the file is available for reference in +demo.orig.c+.  The
+following listing shows the differences between these two files:
 
 [diff]
 source~~~~
@@ -125,7 +126,10 @@ source~~~~
 source~~~~
 
 After completing the above changes, program instrumentation is
-accomplished by calling +make+ with the special +lis+ target:
+accomplished by calling +make+ with the special +lis+ target.  The
+following command assumes that the LIS system was installed in
++$HOME/lis-core$, but should be updated to reflect your local
+installation:
 
 ----
 LISDIR=$HOME/lis-core make lis
