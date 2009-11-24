@@ -89,6 +89,7 @@ build_lis ()
 {
     CILPATH=$LISDIR/$CIL make -C $LISDIR/lis
     make -C $LISDIR/bitlog
+    CILPATH=$LISDIR/$CIL make -C $LISDIR/analysis/extractCalls
 }
 
 
