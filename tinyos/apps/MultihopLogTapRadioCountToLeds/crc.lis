@@ -1,0 +1,1 @@
+conditional CC2420ReceiveP__RXFIFO__readDone global 1 buf
