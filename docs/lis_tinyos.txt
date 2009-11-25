@@ -21,6 +21,15 @@ briefly introduces how to begin using it to obtain logs from interesting
 regions of your own projects.
 
 
+.TinyOS Tool Chain
+[NOTE]
+These instructions assume that the TinyOS tool chain is already
+installed for both AVR and MSP430 targets.  For more information on
+installing this tool chain, look at
+http://www.tinyos.net/tinyos-2.x/doc/html/install-tinyos.html[Installing
+TinyOS 2.0.2].
+
+
 Installation
 ------------
 
@@ -29,11 +38,12 @@ link:installation.html[installation instructions].  Navigate to
 +$LISDIR/install+ and execute the installation script.  The installation
 script takes two parameters to describe where the root of the LIS
 installation is located and where the TinyOS repository should be
-installed:
+installed.  Feel free to set +TOSROOT+ to a system specific value.
 
 ----
 cd $LISDIR/install/
-sh install_tos.sh $LISDIR $HOME/tinyos-2.1.0
+TOSROOT=$HOME/tinyos-2.1.0
+sh install_tos.sh $LISDIR $TOSROOT
 ----
 
 This script downloads the 2.1.0 version of TinyOS using CVS, inserts LIS
@@ -41,16 +51,27 @@ into the aquired TinyOS distribution, and build the +bitlog+ library for
 the AVR and MSP430 targets.  This last step assumes the presense of the
 +avr-gcc+ and +msp430-gcc+.
 
+Continue by building the serial forwarder provided by TinyOS and the
+timestamped listener used by LIS:
 
-Preparing to Use LIS
---------------------
+----
+cd $TOSROOT/support/sdk/c/sf
+./bootstrap
+./configure
+make
+cd $TOSROOT/support/utils/lowlog/listener
+make
+----
+
+Preparing to Use LIS and TinyOS
+-------------------------------
 
 After installing TinyOS with all LIS you will need to set up your TinyOS build
 environment for the freshly installed version of TinyOS located in
 `tinyos-2.x-git`.  You can do this by hand or by executing:
 
 ----
-. lowlog_setup.sh
+. lowlog_env_setup.sh
 ----
 
 from the base TinyOS directory created during installation.
@@ -65,35 +86,45 @@ call trace generation.
 
 ----
 # Move into demo directory
-cd apps/MultihopLogTapRadioCountToLeds
+cd $TOSROOT/apps/MultihopLogTapRadioCountToLeds
 
 # Generate image instrumented based on the "crc.lis" script
 LIS_PATH=$LISDIR CPATH=$LIS_PATH/bitlog \
     LIS_FILE=crc.lis make telosb lis
 
+# Connect a telosb mote
 make telosb reinstall,2
+
+# Connect a different telosb mote
+make telosb reinstall,0
 -----
 
 
 ----
 # Move into demo directory
-cd apps/MultihopLogTapRadioCountToLeds
+cd $TOSROOT/apps/MultihopLogTapRadioCountToLeds
 
 # Generate image that gathers call traces through the LedsP and
 # CtpRoutingEngineP TinyOS components.
 LIS_PATH=$LISDIR CPATH=$LIS_PATH/bitlog \
     LOG_PREFIX="LedsP CtpRoutingEngineP" make telosb lowlog
 
+# Connect a telosb mote
 make telosb reinstall,2
+
+# Connect a different telosb mote
+make telosb reinstall,0
 ----
 
 
 Gather and Examine Traces
 -------------------------
 
-This requires that the +MultihopLogTapRadioCountToLeds+ node programmed
-and running as described above, and that a TinyOS +BaseStation+ node be
-connected to the computer to pass data on to the serial forwarder.
+This requires that the +MultihopLogTapRadioCountToLeds+ with identifier
+0 (programmed above) be connected to the PC, where it acts as the root
+of a collection tree.  The +MultihopLogTapRadioCountToLeds+ with
+identifier 2 should be powerd on.  The LEDs should blinking on both
+motes, indicating communication between them.
 
 In the first terminal start the serial forwarder on the PC:
 
@@ -114,11 +145,8 @@ second).  After a few seconds you can stop the programs in both
 terminals.  To view the trace use the listener:
 
 ----
-export LOG_DIR=$TOSROOT/apps/LogTapRadioCountToLeds/build/telosb
-$LISDIR/parser/parseLog.py -t trace.txt \
-        -e $LOG_DIR/enum_entry_point_functions.txt \
-        -b $LOG_DIR/enum_calls_in_roi.txt \
-        -r $LOG_DIR/roi.txt
+LOGDIR=$TOSROOT/apps/MultihopLogTapRadioCountToLeds/build/telosb
+$LISDIR/parser/parseLog.py -m network $LOGDIR/app.lis.rlis trace.txt
 ----
 
 
@@ -137,9 +165,9 @@ directly to the UART and the latter multihops logs out of the network
 using CTP.
 
 An example of wiring +LogTapC+ into an application is provided in
-+$TOSDIR/apps/LogTapBlink/BlinkAppC.nc+.  An example of wiring
++$TOSROOT/apps/LogTapBlink/BlinkAppC.nc+.  An example of wiring
 +MultihopLogTapC+ into an application is provided in
-+$TOSDIR/apps/MultihopLogTapRadioCountToLeds/MultihopLogTapRadioCountToLedsAppC.nc+.
++$TOSROOT/apps/MultihopLogTapRadioCountToLeds/MultihopLogTapRadioCountToLedsAppC.nc+.
 
 The +Makefile+ must also be extended to include to include an updated
 +PFLAGS+ and +CFLAGS+.  For example, the +Makefile+ for for
