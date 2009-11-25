@@ -12,7 +12,7 @@ lis_build: lis_pre_size lis_prep lis_instrumentation lis_pre_build FORCE
 	@echo
 	$(TARGET_PROCESSOR)-gcc \
 			-mmcu=atmega128 -Os $(BUILDDIR)/app.lis.c \
-			-L$(LIS_PATH/bitlog) -lbitlog-$(TARGET_PROCESSOR) -o $(BUILDDIR)/lis.elf
+			-L$(LIS_PATH)/bitlog -lbitlog-$(TARGET_PROCESSOR) -o $(BUILDDIR)/lis.elf
 	cp $(BUILDDIR)/lis.elf $(BUILDDIR)/main.exe
 	$(OBJCOPY) --output-target=ihex $(MAIN_EXE) $(MAIN_IHEX)
 	@echo
