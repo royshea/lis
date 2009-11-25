@@ -409,7 +409,7 @@ if __name__ == '__main__':
 
     # Create a source trace from the packets
     bitlog_traces = packetTrace.SourceTrace(bitlog_packets)
-    start_time = bitlog_traces.traces[0][0].timestamp
+    start_time = bitlog_traces.get_start_time()
 
     # Print packets and exit if requested
     if options.print_packets:

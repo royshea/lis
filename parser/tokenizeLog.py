@@ -136,7 +136,7 @@ def main():
 
     # Tokenize the stream for each node
     node_tokens = {}
-    start_time = bitlog_traces.traces[0][0].timestamp
+    start_time = bitlog_traces.get_start_time()
     for trace_id in sorted(bitlog_traces.traces.keys()):
         trace = bitlog_traces.traces[trace_id]
         tokens_and_times = roi_parser.tokenize_trace(trace, start_time)

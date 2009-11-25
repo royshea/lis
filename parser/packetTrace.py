@@ -80,6 +80,23 @@ class SourceTrace:
                     prior_seq_num = packet.seq_num
 
 
+    def get_start_time(self):
+
+        min_time = None
+        for node_id in self.traces.keys():
+
+            # Ignore empty traces
+            if len(self.traces[node_id]) == 0:
+                continue
+
+            # Track the minimum start time
+            if min_time:
+                min_time = min(min_time, self.traces[node_id][0].timestamp)
+            else:
+                min_time = self.traces[node_id][0].timestamp
+
+        return min_time
+
     def __str__(self):
         """Print a raw copy of all traces."""
         out_string = ""
