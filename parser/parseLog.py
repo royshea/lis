@@ -273,6 +273,10 @@ class RoiParser:
         call_depth = 0
         for token in tokens:
 
+            # Skip over watch points that are a tuple type
+            if type(token) == type(()):
+                continue
+
             if token.type == rlisTokens.RlisEntry.HEADER and \
                     token.scope == rlisTokens.RlisEntry.GLOBAL and \
                     call_depth > 0:
@@ -423,7 +427,6 @@ if __name__ == '__main__':
     # Print all traces
     for trace_id in sorted(bitlog_traces.traces.keys()):
         print "==== Trace for node %d ====" % (trace_id)
-        # print bitlog_traces.traces[trace_id]
         print roi_parser.print_roi_call_trace(
                 bitlog_traces.traces[trace_id], start_time)
         print
