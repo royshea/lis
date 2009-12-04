@@ -54,7 +54,7 @@ These instructions assume you are working from the +$LISDIR+
 directory.  You can set this environment variable in bash using:
 
 ----
-export $LISDIR=/$HOME/local/lis
+export LISDIR=/$HOME/lis-core
 ----
 
 Obtain LIS and CIL
