@@ -22,10 +22,8 @@
  * UPDATES, ENHANCEMENTS, OR MODIFICATIONS."
  *
  * Author: Roy Shea (royshea@gmail.com)
- * Date last modified: 2/25/09
+ * Date: Dec. 2009
  */
-
-#include "LogTap.h"
 
 configuration LogTapC
 {
@@ -36,19 +34,23 @@ configuration LogTapC
 
 implementation
 {
+    /* Basic startup */
     components LogTapP;
-
     Boot = LogTapP;
     LogTap = LogTapP;
 
-    components SerialActiveMessageC as LogActiveMessageC;
-    components new SerialAMSenderC(AM_LOGTAP) as LogAMSenderC;
+    /* Mechanism for sending logs out over the UART */
+    components SerialActiveMessageC as LogSerialMessageC;
+    components new SerialAMSenderC(AM_LOGTAP) as LogSerialSender;
 
-    components new QueueC(message_t, 8);
+    LogTapP.SerialControl -> LogSerialMessageC;
+    LogTapP.SerialSend -> LogSerialSender.AMSend;
+   
+    /* Buffer for UART messages. */ 
+    components new PoolC(message_t, 2) as LogUartPoolP;
+    components new QueueC(message_t*, 2) as LogUartQueueP;
 
-    LogTapP.Queue -> QueueC;
-    LogTapP.Packet -> LogAMSenderC;
-    LogTapP.AMSend -> LogAMSenderC;
-    LogTapP.AMControl -> LogActiveMessageC;
+    LogTapP.LogUartPool -> LogUartPoolP;
+    LogTapP.LogUartQueue -> LogUartQueueP;
+
 }
-

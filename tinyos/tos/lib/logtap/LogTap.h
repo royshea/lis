@@ -28,6 +28,7 @@
 #define LOGTAP_H
 
 #include <message.h>
+#include <Ctp.h>
 
 enum
 {
@@ -37,8 +38,7 @@ enum
 typedef nx_struct LogTapMsg
 {
     nx_uint8_t length;
-    nx_uint8_t payload[TOSH_DATA_LENGTH - 1];
+    nx_uint8_t payload[TOSH_DATA_LENGTH - sizeof(ctp_data_header_t) - 1];
 } LogTapMsg;
 
 #endif /* LOGTAP_H */
-

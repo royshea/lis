@@ -44,3 +44,4 @@ interface LogTap {
      */
     command error_t sendLog(void *data, uint8_t len);
 }
+

@@ -22,74 +22,53 @@
  * UPDATES, ENHANCEMENTS, OR MODIFICATIONS."
  *
  * Author: Roy Shea (royshea@gmail.com)
- * Date last modified: 2/25/09
+ * Date: Dec. 2009
  */
 #include "LogTap.h"
 
 module LogTapP
 {
     uses interface Boot;
-    uses interface Packet;
-    uses interface AMSend;
-    uses interface SplitControl as AMControl;
-    uses interface Queue<message_t> as Queue;
+
+    uses interface SplitControl as SerialControl;
+    
+    uses interface AMSend as SerialSend;
+
+    uses interface Pool<message_t> as LogUartPool;
+    uses interface Queue<message_t *> as LogUartQueue;
+
     provides interface LogTap;
 }
 
 implementation
 {
-    enum {
-        S_STOPPED,
-        S_STARTED,
-        S_FLUSHING,
-      };
-
-    message_t send_msg;
-    uint8_t state = S_STOPPED;
+    void popUartQueue();
+    bool uartbusy = FALSE;
+    message_t uartbuf;
 
     event void Boot.booted()
     {
-        call AMControl.start();
+        call SerialControl.start();
     }
 
 
-    event void AMControl.startDone(error_t err)
+    event void SerialControl.startDone(error_t err)
     {
-        if (err == SUCCESS)
-            atomic state = S_STARTED;
-        else
-            call AMControl.start();
+        if (err != SUCCESS)
+            call SerialControl.start();
     }
 
 
-    event void AMControl.stopDone(error_t err)
+    event void SerialControl.stopDone(error_t err) { }
+
+
+    task void uartSendTask()
     {
-        atomic state = S_STOPPED;
-    }
-
-
-    task void retrySend() {
-        if(call AMSend.send(AM_BROADCAST_ADDR, &send_msg, sizeof(LogTapMsg)) != SUCCESS)
-            post retrySend();
-    }
-
-
-    void sendNext()
-    {
-        memset(&send_msg, 0, sizeof(message_t));
-        send_msg = call Queue.dequeue();
-        if(call AMSend.send(AM_BROADCAST_ADDR, &send_msg, sizeof(LogTapMsg)) != SUCCESS)
-            post retrySend();
-    }
-
-
-    event void AMSend.sendDone(message_t* msg, error_t error) {
-        if(error == SUCCESS) {
-            if(call Queue.size() > 0)
-                sendNext();
-            else state = S_STARTED;
+        if (call SerialSend.send(0xffff, &uartbuf, sizeof(LogTapMsg)) != SUCCESS)
+        {
+            uartbusy = FALSE;
+            popUartQueue();
         }
-        else post retrySend();
     }
 
 
@@ -98,32 +77,71 @@ implementation
         return call LogTap.sendLog(data, len);
     }
 
-
-    command error_t LogTap.sendLog(void *data, uint8_t len)
+    
+    event void SerialSend.sendDone(message_t *msg, error_t error)
     {
-        LogTapMsg *logMsg;
-        message_t tmp_msg;
+        uartbusy = FALSE;
+        popUartQueue();
+    }
 
-        if((state == S_STARTED) && (call Queue.size() >= 5)) {
-            state = S_FLUSHING;
-            sendNext();
-        }
+    void popUartQueue()
+    {
+        if (call LogUartQueue.empty() == FALSE) {
+            /* Keep popping messages off of the UART queue */
+            message_t *queuemsg = call LogUartQueue.dequeue();
 
-        logMsg = (LogTapMsg *)call AMSend.getPayload(&tmp_msg, sizeof(LogTapMsg));
-        if (logMsg == NULL)
-        {
-            return FAIL;
-        }
+            /* This shouldn't happen... */
+            if (queuemsg == NULL)
+                return;
 
-        memcpy(logMsg, data, len);
-        atomic {
-            if (call Queue.enqueue(tmp_msg) != SUCCESS)
-            {
-                return FAIL;
-            }
-            return SUCCESS;
+            memcpy(&uartbuf, queuemsg, sizeof(message_t));
+
+            /* This should also not happen... */
+            if (call LogUartPool.put(queuemsg) != SUCCESS)
+                return;
+
+            post uartSendTask();
         }
     }
 
 
+    command error_t LogTap.sendLog(void *data, uint8_t len)
+    {
+        LogTapMsg* in = (LogTapMsg*)data;
+        LogTapMsg* out;
+
+        if (uartbusy == FALSE)
+        {
+            uartbusy = TRUE;
+            out = (LogTapMsg*) call SerialSend.getPayload(&uartbuf, sizeof(LogTapMsg));
+            if (len > sizeof(LogTapMsg) || out == NULL)
+            {
+                uartbusy = FALSE;
+                return FAIL;
+            }
+            memcpy(out, in, sizeof(LogTapMsg));
+            post uartSendTask();
+        }
+        else
+        {
+            /* Queue messages if UART is busy. */
+            message_t *newmsg = call LogUartPool.get();
+
+            /* Drop the packet if the queue is full. */
+            if (newmsg == NULL) return FAIL;
+
+            out = (LogTapMsg*) call SerialSend.getPayload(newmsg, sizeof(LogTapMsg));
+            if (out == NULL) return FAIL;
+
+            memcpy(out, in, sizeof(LogTapMsg));
+
+            /* Big problem.  Ran out of queue space without running out
+             * of messages in the pool.  Something is amis. */
+            if (call LogUartQueue.enqueue(newmsg) != SUCCESS) {
+                call LogUartPool.put(newmsg);
+                return FAIL;
+            }
+        }
+        return SUCCESS;
+    }
 }
