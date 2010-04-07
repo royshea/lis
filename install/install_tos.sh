@@ -45,6 +45,7 @@ insert_lis ()
 
     # LIS TinyOS Component
     cp -r $LIS/tinyos/tos/lib/multihoplogtap $TOSROOT/tos/lib
+    cp -r $LIS/tinyos/tos/lib/logtap $TOSROOT/tos/lib
 
     # LIS Tool Suite
     cp -r $LIS/tinyos/support/utils $TOSROOT/support
