@@ -139,6 +139,11 @@ class ChunkStream:
                 t[0] == self.chunk_index and t[1] <= self.bit_index]
         time = chunk_times[-1][2]
         start_bit = chunk_times[-1][1]
+
+        if not self.start_time:
+            assert not time
+            return (0, self.bit_index)
+
         return (time - self.start_time, self.bit_index - start_bit)
 
 
