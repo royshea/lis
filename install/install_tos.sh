@@ -29,6 +29,7 @@ insert_lis ()
 
     # Demo applications
     cp -r $LIS/tinyos/apps/MultihopLogTapRadioCountToLeds $TOSROOT/apps/
+    cp -r $LIS/tinyos/apps/LogTapRadioCountToLeds $TOSROOT/apps/
 
     # Build system
     cp $LIS/tinyos/support/make/lis_general.extra $TOSROOT/support/make/lis_general.extra
