@@ -47,9 +47,9 @@ sh install_tos.sh $LISDIR $TOSROOT
 ----
 
 This script downloads the 2.1.0 version of TinyOS using CVS, inserts LIS
-into the aquired TinyOS distribution, and build the +bitlog+ library for
-the AVR and MSP430 targets.  This last step assumes the presense of the
-+avr-gcc+ and +msp430-gcc+.
+into the acquired TinyOS distribution, and build the +bitlog+ library
+for the AVR and MSP430 targets.  This last step assumes the presence of
+the +avr-gcc+ and +msp430-gcc+.
 
 Continue by building the serial forwarder provided by TinyOS and the
 timestamped listener used by LIS:
@@ -76,9 +76,114 @@ environment for the freshly installed version of TinyOS located in
 
 from the base TinyOS directory created during installation.
 
+Example 1: Gathering LIS Logs from an Avrora Simulation of Mica2 Motes
+----------------------------------------------------------------------
 
-Build the Demonstration Application with Logging from LIS
----------------------------------------------------------
+Simulation provides a great medium for developing and debugging
+applications.  This example walks through gathering logs from a
+simulated network of Mica2 motes.  The LogTap log management component
+is used to transmit logs over the serial interface of each mote.
+
+Install Avrora
+~~~~~~~~~~~~~~
+
+Download and build the latest version of Avrora from the Avrora source
+forge website.
+
+----
+cvs -d:pserver:anonymous@avrora.cvs.sourceforge.net:/cvsroot/avrora login
+cvs -z3 -d:pserver:anonymous@avrora.cvs.sourceforge.net:/cvsroot/avrora co -P avrora
+cd avrora
+make
+----
+
+Build the Demonstration Application with (Serial) Logging from LIS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This example uses serial based logging provided by the LogTap component,
+rather than the multi-hop logging used in the prior example.  The LogTap
+component flushes logs out over the serial interface of a node.  This
+makes it a great addition to testbed deployments with a wired backplane
+and for simulation.
+
+.Avrora, 4bitle, and CTP
+[NOTE]
+As of early 2010, the radio simulation in Avrora appears to confuse the
+4bitle component used by CTP in TinyOS.  Consequently, Avrora is
+currently best suited to using the serial based logging framework
+provided by the LogTap component.
+
+----
+# Move into demo directory
+cd $TOSROOT/apps/LogTapRadioCountToLeds
+
+# Generate image instrumented using LowLog to collect call traces
+# through the Receive.receive and MilliTimer.fired components
+LIS_PATH=$LIS CPATH=$LIS_PATH/bitlog LOG_PREFIX="RadioCountToLedsC__Receive__receive RadioCountToLedsC__MilliTimer__fired" make mica2 lowlog
+-----
+
+Collect Logs from a Simulated Network of Nodes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Start an Avrora simulation:
+
+----
+AVRORA=</path/to/avrora/bin>
+java -cp $AVRORA avrora/Main -colors=false -platform=mica2 \
+    -simulation=sensor-network -monitors=real-time,leds,packet,serial \
+    -update-node-id -stagger-start=1234 -ports=0:0:2390,1:0:2391 -nodecount=2 \
+    build/mica2/lowlog.elf
+----
+
+Key parameters specified on the command line include:
+- Type of device being simulated: +platform=mica2+
+- Request serial output from all nodes with node 0 sending its output
+  to port 2390 and node 1 sending its output to port 2391:
+  +monitors=...,serial+ and +ports=0:0:2390,1:0:2391+
+- Update the node identifier within the elf file +update-node-id+
+- Simulate two nodes: +nodecount=2+
+
+From another terminal, connect a TinyOS serial listener to node 0 and
+redirect its output to a log file:
+
+----
+java -cp $TOSROOT/support/sdk/java/tinyos.jar net.tinyos.tools.Listen -comm network@localhost:2390 > node0.log
+----
+
+From another terminal, connect a TinyOS serial listener to node 1 and
+redirect its output to a log file:
+
+----
+java -cp $TOSROOT/support/sdk/java/tinyos.jar net.tinyos.tools.Listen -comm network@localhost:2391 > node1.log
+----
+
+Let the simulation run for a few seconds and then stop it by typing
+CTRL-C in the terminal running the Avrora simulation.  Each of the
+serial listeners can also be stopped by typing CTRL-C in their
+respective terminals.
+
+Examine Log Traces
+~~~~~~~~~~~~~~~~~~
+
+Use the LIS parser to view the logs.
+
+----
+LOGDIR=$TOSROOT/apps/LogTapRadioCountToLeds/build/mica2
+$LISDIR/parser/parseLog.py -m network $LOGDIR/app.lis.rlis node0.log
+$LISDIR/parser/parseLog.py -m network $LOGDIR/app.lis.rlis node1.log
+----
+
+Example 2: Gathering LIS Logs from a Network of TelosB Motes
+------------------------------------------------------------
+
+This example walks through the process of gathering logs from a network
+of TelosB motes.  The logs are generated using LIS, routed over the
+collection tree protocol (CTP) to the sink node using the MultihopLogTap
+component, and finally parsed.  This example demonstrates how LIS is
+used to gather logs from a deployment using real nodes.
+
+Build the Demonstration Application with Multihop Logging from LIS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The TinyOS support can be accessed via one of two modes: directly via
 LIS scripts or using a higher level analysis that implements optimized
@@ -116,14 +221,13 @@ make telosb reinstall,2
 make telosb reinstall,0
 ----
 
-
 Gather and Examine Traces
--------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This requires that the +MultihopLogTapRadioCountToLeds+ with identifier
 0 (programmed above) be connected to the PC, where it acts as the root
 of a collection tree.  The +MultihopLogTapRadioCountToLeds+ with
-identifier 2 should be powerd on.  The LEDs should blinking on both
+identifier 2 should be powered on.  The LEDs should blinking on both
 motes, indicating communication between them.
 
 In the first terminal start the serial forwarder on the PC:
@@ -142,17 +246,15 @@ $TOSROOT/support/utils/lowlog/listener/timestampedlisten localhost 9002 | tee tr
 In the second terminal you should see a combination of short count
 packets (about each second) and longer LowLog packets (about once a
 second).  After a few seconds you can stop the programs in both
-terminals.  To view the trace use the listener:
+terminals.  To view the trace use the LIS parser:
 
 ----
 LOGDIR=$TOSROOT/apps/MultihopLogTapRadioCountToLeds/build/telosb
 $LISDIR/parser/parseLog.py -m network $LOGDIR/app.lis.rlis trace.txt
 ----
 
-
 More Detailed Look at Using LIS with TinyOS
 -------------------------------------------
-
 
 Wiring LogTapC or MultihopLogTapC into the Program
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -199,14 +301,15 @@ used by NesC, results in function names of the form:
 <ComponentName>$<InterfaceName>$<FunctionName>
 ----
 
-Note that LowLog replaces these dollar signs with underscores.  We could
-enable logging in any of the LED related functions using the prefix
-`LedsP_Leds`, since the LED functionality is implemented in the `LedsP`
-component and accessed via the `Leds` interface.  You can specify more
-than one prefix by separating them with spaces.  For example:
+Note that LowLog replaces these dollar signs with two underscores.  We
+could enable logging in any of the LED related functions using the
+prefix `LedsP__Leds`, since the LED functionality is implemented in the
+`LedsP` component and accessed via the `Leds` interface.  You can
+specify more than one prefix by separating them with spaces.  For
+example:
 
 ----
-LOG_PREFIX="RadioCountToLedsC LedsP_Leds" make telosb lowlog
+LOG_PREFIX="RadioCountToLedsC LedsP__Leds" make telosb lowlog
 ----
 
 enables tracing in all functions implemented directly by the
