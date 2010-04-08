@@ -38,9 +38,7 @@ link:installation.html[installation instructions].  Navigate to
 +$LISDIR/install+ and execute the installation script.  The installation
 script takes two parameters to describe where the root of the LIS
 installation is located and where the TinyOS repository should be
-installed.  Feel free to set +TOSROOT+ to a system specific value.  When
-prompted for a password (for the public TinyOS repository) just press
-enter.
+installed.  Feel free to set +TOSROOT+ to a system specific value.
 
 ----
 cd $LISDIR/install/
@@ -57,8 +55,6 @@ Continue by building the serial forwarder provided by TinyOS and the
 timestamped listener used by LIS:
 
 ----
-cd $TOSROOT
-. lowlog_env_setup.sh
 cd $TOSROOT/support/sdk/c/sf
 ./bootstrap
 ./configure
