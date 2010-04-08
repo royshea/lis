@@ -267,8 +267,9 @@ directly to the UART and the latter multihops logs out of the network
 using CTP.
 
 An example of wiring +LogTapC+ into an application is provided in
-+$TOSROOT/apps/LogTapBlink/BlinkAppC.nc+.  An example of wiring
-+MultihopLogTapC+ into an application is provided in
++$TOSROOT/apps/LogTapRadioCountToLeds/LogTapRadioCountToLedsAppC.nc+.
+An example of wiring +MultihopLogTapC+ into an application is provided
+in
 +$TOSROOT/apps/MultihopLogTapRadioCountToLeds/MultihopLogTapRadioCountToLedsAppC.nc+.
 
 The +Makefile+ must also be extended to include to include an updated
