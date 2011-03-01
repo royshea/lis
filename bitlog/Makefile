@@ -2,7 +2,7 @@
 # Date:  6/1/09
 
 SOURCES = bitlog.c
-CFLAGS = -g -Wall -pedantic 
+CFLAGS = -g -Wall -pedantic -ansi
 # CFLAGS += -DNO_SYSTEM_INCLUDES
 
 # Target specific build rules.  These are selected based on common uses
